@@ -420,7 +420,7 @@
 </div>
 
 <script>
-    // 선생님 정답지 기준 Day 21 ~ Day 40 (최종 완성 560개 데이터)
+    // 운정고 1학년 영어 수행평가 대비 Day 21 ~ Day 40 데이터베이스
     const vocabularyData = [
         // Day 21
         { day: 21, word: "worsened", initial: "w", sentence: "His condition has ____ since he left the hospital.", translation: "퇴원한 이후로 그의 건강 상태는 악화되었다." },
@@ -902,21 +902,27 @@
         { day: 35, word: "numerals", initial: "n", sentence: "The use of Arabic ____ spread around the world.", translation: "아라비아 숫자의 사용이 전 세계로 퍼졌다." },
         { day: 35, word: "numerous", initial: "n", sentence: "There are ____ environmental benefits of organic farming.", translation: "유기 농업의 수많은 환경적 이점이 있다." },
 
-        // Day 36
+        // Day 36 (완벽하게 교정된 원문 문항 기준 20개 단어)[cite: 42, 43, 44]
         { day: 36, word: "humble", initial: "h", sentence: "Despite his success, he is ____ and kind to everyone.", translation: "자신의 성공에도 불구하고, 그는 겸손하고 모두에게 친절하다." },
         { day: 36, word: "major", initial: "m", sentence: "Private education is a ____ issue in our society.", translation: "사교육은 우리 사회의 주요 쟁점이다." },
         { day: 36, word: "submit", initial: "s", sentence: "When do I need to ____ the report?", translation: "그 보고서를 언제 제출해야 하나요?" },
         { day: 36, word: "capital", initial: "c", sentence: "Ottawa is the ____ of Canada.", translation: "오타와는 캐나다의 수도이다." },
         { day: 36, word: "apply", initial: "a", sentence: "I'll ____ for the job in the sales department.", translation: "나는 영업 부서의 일자리에 지원할 것이다." },
-        { day: 36, word: "prime", initial: "p", sentence: "Social welfare was the ____ issue in the debate.", translation: "사회 복지가 토론에서의 주요 쟁점이였다." },
+        { day: 36, word: "prime", initial: "p", sentence: "Social welfare was the ____ issue in the debate.", translation: "사회 복지가 토론에서의 주요 쟁점이었다." },
         { day: 36, word: "counted", initial: "c", sentence: "The teacher ____ the students to make sure everyone was present.", translation: "그 교사는 모두 출석했는지 확인하기 위해 학생들을 세어 보았다." },
         { day: 36, word: "modest", initial: "m", sentence: "He was ____ about his success.", translation: "그는 자신의 성공에 대해 겸손했다." },
-        { day: 36, word: "issue", initial: "i", sentence: "Private education is a major ____ in our society.", translation: "사교육은 우리 사회의 주요 쟁점이다." },
-        { day: 36, word: "complex", initial: "c", sentence: "The problem is too ____ to solve easily.", translation: "그 문제는 너무 복잡해서 쉽게 해결할 수 없다." },
-        { day: 36, word: "deposit", initial: "d", sentence: "You must pay a ____ to reserve the room.", translation: "방을 예약하려면 보증금을 내야 한다." },
-        { day: 36, word: "suits", initial: "s", sentence: "This blue jacket really ____ you.", translation: "이 파란색 재킷이 너에게 정말 잘 어울린다." },
-        { day: 36, word: "property", initial: "p", sentence: "They bought some ____ near the lake.", translation: "그들은 호수 근처의 부동산을 일부 매입했다." },
-        { day: 36, word: "attend", initial: "a", sentence: "All members are required to ____ the meeting.", translation: "모든 회원들은 회의에 참석해야 한다." },
+        { day: 36, word: "complex", initial: "c", sentence: "Consider each person's ____ personality of positive and negative traits.", translation: "각 개인이 가진 긍정적·부정적 특성으로 이루어진 복잡한 성격을 고려하라." },
+        { day: 36, word: "deposit", initial: "d", sentence: "He paid the ____ for his house.", translation: "그는 자신의 집의 계약금을 지불했다." },
+        { day: 36, word: "suits", initial: "s", sentence: "The red dress ____ you well.", translation: "그 빨간 드레스는 네게 잘 어울린다." },
+        { day: 36, word: "property", initial: "p", sentence: "The police recovered the stolen ____ after a week.", translation: "경찰은 일주일 뒤에 도난당한 재산을 회수했다." },
+        { day: 36, word: "attend", initial: "a", sentence: "He wasn't able to ____ his graduation ceremony.", translation: "그는 자신의 졸업식에 참석하지 못했다." },
+        { day: 36, word: "tune", initial: "t", sentence: "He played a blues ____ on his guitar.", translation: "그는 기타로 블루스 곡을 연주했다." },
+        { day: 36, word: "commanded", initial: "c", sentence: "The general ____ his troops to attack.", translation: "장군은 그의 부대에게 공격하라고 명령했다." },
+        { day: 36, word: "contract", initial: "c", sentence: "Read the ____ carefully before you sign.", translation: "서명하기 전에 계약서를 주의 깊게 읽으세요." },
+        { day: 36, word: "account", initial: "a", sentence: "I'd like to open a bank ____.", translation: "저는 은행 계좌를 개설하고 싶습니다." },
+        { day: 36, word: "suspended", initial: "s", sentence: "The website ____ service due to server problems.", translation: "그 웹 사이트는 서버 문제로 서비스를 중단했다." },
+        { day: 36, word: "committed", initial: "c", sentence: "The criminal ____ the crime in broad daylight.", translation: "그 범죄자는 대낮에 범행을 저질렀다." },
+        { day: 36, word: "issue", initial: "i", sentence: "We need plenty of time to think about this ____.", translation: "우리는 이 문제에 대해 생각할 충분한 시간이 필요하다." },
 
         // Day 37
         { day: 37, word: "contents", initial: "c", sentence: "What are the ____ of the package?", translation: "그 소포의 내용물은 무엇인가요?" },
@@ -1013,7 +1019,7 @@
     let sortMode = 'all';
     let currentPlaylist = [];
     let currentIndex = 0;
-    let isCheckedState = false; // 엔터키 연타 상태관리 변수
+    let isCheckedState = false;
 
     // DOM 요소
     const startScreen = document.getElementById('start-screen');
@@ -1131,7 +1137,7 @@
         testInput.value = '';
         feedback.textContent = '';
         feedback.className = 'feedback';
-        isCheckedState = false; // 새로운 문제 진입 시 채점 상태 초기화
+        isCheckedState = false;
 
         if (gameMode === 'test') {
             setTimeout(() => testInput.focus(), 50);
@@ -1157,7 +1163,7 @@
             feedback.textContent = `X (${item.word})`;
             feedback.className = 'feedback incorrect';
         }
-        isCheckedState = true; // 채점 완료
+        isCheckedState = true;
     }
 
     btnSubmit.addEventListener('click', () => {
