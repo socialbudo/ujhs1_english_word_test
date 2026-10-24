@@ -34,7 +34,6 @@
             padding: 16px;
         }
 
-        /* 노트북 화면 및 모바일 모두 컴팩트하게 보이도록 최대 너비 축소 */
         .container {
             width: 100%;
             max-width: 460px;
@@ -43,6 +42,15 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             padding: 24px;
             position: relative;
+        }
+
+        .maker-tag {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
         }
 
         h1 {
@@ -313,6 +321,8 @@
 <body>
 
 <div class="container">
+    <div class="maker-tag">made by 임윤 & 제미나이</div>
+
     <!-- 시작 화면 -->
     <div id="start-screen" class="screen active">
         <h1>운정고 1학년 영어 수행평가 대비</h1>
@@ -329,10 +339,12 @@
                 <div><input type="checkbox" id="day24" class="day-checkbox" value="24"><label for="day24" class="day-label">Day 24</label></div>
                 <div><input type="checkbox" id="day25" class="day-checkbox" value="25"><label for="day25" class="day-label">Day 25</label></div>
                 <div><input type="checkbox" id="day26" class="day-checkbox" value="26"><label for="day26" class="day-label">Day 26</label></div>
-                <!-- 확장 대비 비활성화 영역 -->
-                <div><input type="checkbox" id="day27" class="day-checkbox" disabled><label for="day27" class="day-label">Day 27</label></div>
-                <div><input type="checkbox" id="day28" class="day-checkbox" disabled><label for="day28" class="day-label">Day 28</label></div>
-                <div><input type="checkbox" id="day29" class="day-checkbox" disabled><label for="day29" class="day-label">Day 29</label></div>
+                <div><input type="checkbox" id="day27" class="day-checkbox" value="27"><label for="day27" class="day-label">Day 27</label></div>
+                <div><input type="checkbox" id="day28" class="day-checkbox" value="28"><label for="day28" class="day-label">Day 28</label></div>
+                <div><input type="checkbox" id="day29" class="day-checkbox" value="29"><label for="day29" class="day-label">Day 29</label></div>
+                <div><input type="checkbox" id="day30" class="day-checkbox" value="30"><label for="day30" class="day-label">Day 30</label></div>
+                <div><input type="checkbox" id="day31" class="day-checkbox" value="31"><label for="day31" class="day-label">Day 31</label></div>
+                <div><input type="checkbox" id="day32" class="day-checkbox" disabled><label for="day32" class="day-label">Day 32</label></div>
             </div>
         </div>
 
@@ -389,7 +401,7 @@
             <button class="btn-start" id="btn-show-answer" style="background: #475569;">정답 보기</button>
         </div>
 
-        <!-- 직관적인 화살표 버튼 적용 -->
+        <!-- 화살표 버튼 -->
         <div class="btn-nav-group">
             <button class="btn-nav" id="btn-prev">← 이전</button>
             <button class="btn-nav" id="btn-next">다음 →</button>
@@ -398,7 +410,7 @@
 </div>
 
 <script>
-    // 선생님 정답지 기준 180개 단어 데이터 (수정 반영 완료)
+    // 선생님 정답지 기준 Day 21 ~ Day 31 (총 330개 완벽 데이터)
     const vocabularyData = [
         // Day 21
         { day: 21, word: "worsened", initial: "w", sentence: "His condition has ____ since he left the hospital.", translation: "퇴원한 이후로 그의 건강 상태는 악화되었다." },
@@ -590,8 +602,9 @@
         { day: 26, word: "Mediterranean", initial: "M", sentence: "The Nile River flows into the ____ Sea.", translation: "나일강은 지중해로 흘러 들어간다." },
         { day: 26, word: "Minister", initial: "M", sentence: "She was appointed the first woman ____ of Education.", translation: "그녀는 최초의 여성 교육부 장관으로 임명되었다." },
         { day: 26, word: "minor", initial: "m", sentence: "It was a ____ accident, so no one was hurt.", translation: "그것은 작은 사고여서 아무도 다치지 않았다." },
-        { day: 26, word: "minimum", initial: "m", sentence: "We kindly ask that you keep your dogs' noise levels to a ____.", translation: "저희는 여러분의 반려견의 소음 수준을 최소한으로 유지해 주시기를 정중히 요청합니다." }
-// Day 27
+        { day: 26, word: "minimum", initial: "m", sentence: "We kindly ask that you keep your dogs' noise levels to a ____.", translation: "저희는 여러분의 반려견의 소음 수준을 최소한으로 유지해 주시기를 정중히 요청합니다." },
+
+        // Day 27
         { day: 27, word: "admit", initial: "a", sentence: "You're afraid that you'll have to ____ a few things about yourself.", translation: "당신은 당신 자신에 대해 몇 가지를 인정해야 할까 봐 두려워한다." },
         { day: 27, word: "commitment", initial: "c", sentence: "We got a ____ from investors to provide the funding.", translation: "우리는 투자자들로부터 자금을 제공하겠다는 약속을 받았다." },
         { day: 27, word: "commission", initial: "c", sentence: "A special ____ was formed to review policies.", translation: "정책을 검토하기 위해 특별 위원회가 구성되었다." },
@@ -613,7 +626,7 @@
         { day: 27, word: "Notify", initial: "N", sentence: "____ me immediately if you are in trouble.", translation: "네가 곤경에 처하면 내게 바로 알려줘." },
         { day: 27, word: "notable", initial: "n", sentence: "Nobel prizes are awarded to people for their ____ achievements.", translation: "노벨상은 주목할 만한 성과를 거둔 사람들에게 수여된다." },
         { day: 27, word: "pronounce", initial: "p", sentence: "How do you properly ____ this word?", translation: "이 단어를 어떻게 제대로 발음합니까?" },
-        { day: 27, word: "announced", initial: "a", sentence: "They have not a____ the results of the election yet.", translation: "그들은 아직 선거 결과를 발표하지 않았다." },
+        { day: 27, word: "announced", initial: "a", sentence: "They have not ____ the results of the election yet.", translation: "그들은 아직 선거 결과를 발표하지 않았다." },
         { day: 27, word: "monologue", initial: "m", sentence: "The play ends with a ____ by the hero.", translation: "그 연극은 주인공의 독백으로 끝난다." },
         { day: 27, word: "monopoly", initial: "m", sentence: "Patents are issued not to secure a ____, but to share inventions.", translation: "특허는 독점을 보장하기 위해서가 아니라 발명품을 공유하기 위해 발급된다." },
         { day: 27, word: "aspires", initial: "a", sentence: "She ____ to be a journalist who uncovers the truth.", translation: "그녀는 진실을 밝히는 기자가 되기를 열망한다." },
@@ -859,13 +872,11 @@
         }
     });
 
-    // 카드 렌더링 (예문 맨 뒤에 이니셜 배치)
+    // 카드 렌더링
     function renderCard() {
         const item = currentPlaylist[currentIndex];
 
         progressText.textContent = `${currentIndex + 1} / ${currentPlaylist.length}`;
-        
-        // 예문 맨 뒤에 이니셜 (이니셜) 첨부
         cardSentence.textContent = `${item.sentence} (${item.initial})`;
         cardTranslation.textContent = item.translation;
 
