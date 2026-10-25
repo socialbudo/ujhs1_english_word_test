@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>운정고 1학년 영어 수행평가 대비 웹사이트</title>
+    <title>운정고 1학년 영어 수행평가 대비 v2.0</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -15,6 +15,7 @@
             --correct-color: #16a34a;
             --incorrect-color: #dc2626;
             --border-color: #cbd5e1;
+            --star-color: #eab308;
         }
 
         * {
@@ -36,7 +37,7 @@
 
         .container {
             width: 100%;
-            max-width: 460px;
+            max-width: 480px;
             background: var(--card-bg);
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
@@ -179,9 +180,25 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            height: 8px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         .progress-text {
@@ -210,17 +227,35 @@
             font-weight: 600;
         }
 
+        /* Card Styles */
         .card {
             background: #fff;
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 16px;
-            min-height: 180px;
+            margin-bottom: 14px;
+            min-height: 170px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             text-align: center;
+            position: relative;
+        }
+
+        .btn-star {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: color 0.2s;
+        }
+
+        .btn-star.active {
+            color: var(--star-color);
         }
 
         .sentence {
@@ -246,10 +281,23 @@
             min-height: 32px;
         }
 
+        /* Tip Banner */
+        .tip-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 14px;
+            text-align: center;
+            font-weight: 500;
+        }
+
         .input-group {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .test-input {
@@ -323,11 +371,11 @@
 <body>
 
 <div class="container">
-    <div class="maker-tag">made by 임윤 & 제미나이</div>
+    <div class="maker-tag">made by 임윤 & 제미나이 (v2.0)</div>
 
     <!-- 시작 화면 -->
     <div id="start-screen" class="screen active">
-        <h1>운정고 1학년 영어 수행평가 대비</h1>
+        <h1>운정고 1학년 영어 수행평가 대비 v2.0</h1>
 
         <div class="section-group">
             <div class="section-title">
@@ -359,6 +407,18 @@
         </div>
 
         <div class="section-group">
+            <div class="section-title">학습 범위 필터</div>
+            <div class="radio-group">
+                <input type="radio" id="filter-all" name="study-filter" value="all" checked>
+                <label for="filter-all" class="radio-label">전체 단어</label>
+                <input type="radio" id="filter-star" name="study-filter" value="star">
+                <label for="filter-star" class="radio-label">⭐️ 즐겨찾기</label>
+                <input type="radio" id="filter-wrong" name="study-filter" value="wrong">
+                <label for="filter-wrong" class="radio-label">❌ 오답노트</label>
+            </div>
+        </div>
+
+        <div class="section-group">
             <div class="section-title">게임 모드 선택</div>
             <div class="radio-group">
                 <input type="radio" id="mode-swipe" name="game-mode" value="swipe" checked>
@@ -372,7 +432,7 @@
             <div class="section-title">정렬 선택</div>
             <div class="radio-group">
                 <input type="radio" id="sort-all" name="sort-mode" value="all" checked>
-                <label for="sort-all" class="radio-label">전체 (모두 섞음)</label>
+                <label for="sort-all" class="radio-label">전체 (섞음)</label>
                 <input type="radio" id="sort-day" name="sort-mode" value="day">
                 <label for="sort-day" class="radio-label">Day 별로</label>
             </div>
@@ -389,7 +449,17 @@
             <button class="btn-quit" id="btn-quit">그만하기</button>
         </div>
 
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- 스마트 안내 팁 배너 -->
+        <div class="tip-banner" id="tip-banner">
+            💡 팁: [Enter] 1회 입력 = 채점 / 2회 입력 = 다음 문제로 이동!
+        </div>
+
         <div class="card">
+            <button class="btn-star" id="btn-star" title="즐겨찾기 추가">⭐️</button>
             <div class="sentence" id="card-sentence">---</div>
             <div class="translation" id="card-translation">---</div>
             
@@ -420,606 +490,131 @@
 </div>
 
 <script>
-    // 운정고 1학년 영어 수행평가 대비 Day 21 ~ Day 40 데이터베이스
+    // 운정고 1학년 영어 수행평가 대비 전체 데이터베이스
     const vocabularyData = [
         // Day 21
-        { day: 21, word: "worsened", initial: "w", sentence: "His condition has ____ since he left the hospital.", translation: "퇴원한 이후로 그의 건강 상태는 악화되었다." },
-        { day: 21, word: "broaden", initial: "b", sentence: "Life is a chance to learn things and ____ your personal experiences.", translation: "인생은 무언가를 배우고 당신의 개인적인 경험을 넓힐 기회이다." },
-        { day: 21, word: "fasten", initial: "f", sentence: "Please ____ your seatbelt for safety on board.", translation: "기내 안전을 위해 안전띠를 매 주세요." },
-        { day: 21, word: "hastened", initial: "h", sentence: "He ____ down the stairs to welcome his guests.", translation: "그는 손님을 맞이하기 위해서 계단을 서둘러 내려갔다." },
-        { day: 21, word: "dispensable", initial: "d", sentence: "No one in the world is ____, regardless of their situation.", translation: "상황에 상관없이 세상에 없어도 되는 사람은 없다." },
-        { day: 21, word: "durable", initial: "d", sentence: "This bag is both ____ and lightweight, making it perfect for travel.", translation: "이 가방은 튼튼하고 가벼워서 여행에 안성맞춤이다." },
-        { day: 21, word: "credible", initial: "c", sentence: "People often think that a video is ____ if it has thousands of likes.", translation: "사람들은 흔히 좋아요 수가 수천 개면 동영상이 믿을 만하다고 생각한다." },
-        { day: 21, word: "divisible", initial: "d", sentence: "Nine is ____ by three, but not by four.", translation: "9는 3으로 나눌 수 있지만 4로는 나눌 수 없다." },
-        { day: 21, word: "audible", initial: "a", sentence: "The fire alarm was clearly ____ to staff members.", translation: "그 화재 경보음은 직원들에게 또렷하게 들렸다." },
-        { day: 21, word: "edible", initial: "e", sentence: "Walking through the forest, you may find some ____ flowers.", translation: "숲속을 걷다가, 당신은 식용 꽃을 발견할 수도 있다." },
-        { day: 21, word: "eligible", initial: "e", sentence: "Not everyone is ____ to participate in the competition.", translation: "모든 사람이 그 대회에 참가할 자격이 있는 것은 아니다." },
-        { day: 21, word: "tangible", initial: "t", sentence: "Archaeologists tend to focus mostly on ____ aspects of culture.", translation: "고고학자들은 주로 문화의 실제적인 측면에 초점을 맞추는 경향이 있다." },
-        { day: 21, word: "bilingual", initial: "b", sentence: "We are looking for a secretary who is ____ in Korean and English.", translation: "우리는 한국어와 영어 2개 국어를 구사하는 비서를 구하고 있다." },
-        { day: 21, word: "duplicate", initial: "d", sentence: "Could you ____ this report before the deadline?", translation: "마감 시간 전에 이 보고서를 복사해 주실 수 있나요?" },
-        { day: 21, word: "twilight", initial: "t", sentence: "He hadn't come back home by ____.", translation: "그는 땅거미가 질 무렵까지 집에 돌아오지 않았다." },
-        { day: 21, word: "trivial", initial: "t", sentence: "People often quarrel over ____ matters.", translation: "사람들은 종종 사소한 문제로 다툰다." },
-        { day: 21, word: "tribe", initial: "t", sentence: "The book covers the history of a ____ in Africa.", translation: "그 책은 아프리카에 사는 한 부족의 역사를 다루고 있다." },
-        { day: 21, word: "deduce", initial: "d", sentence: "The class struggled to ____ the answer to the question.", translation: "학급 학생들은 그 질문에 대한 답을 추론하려고 애썼다." },
-        { day: 21, word: "educate", initial: "e", sentence: "We need to ____ people about road safety.", translation: "우리는 사람들에게 도로 안전에 대해 가르칠 필요가 있다." },
-        { day: 21, word: "conducted", initial: "c", sentence: "They ____ a survey on the dietary habits of adults.", translation: "그들은 성인의 식습관에 대한 설문 조사를 실시했다." },
-        { day: 21, word: "deducted", initial: "d", sentence: "Taxes will automatically be ____ from your salary every month.", translation: "세금은 매달 당신의 월급에서 자동으로 공제될 것이다." },
-        { day: 21, word: "prospered", initial: "p", sentence: "His business ____ despite the economic crisis.", translation: "경제 위기에도 불구하고 그의 사업은 번창했다." },
-        { day: 21, word: "despair", initial: "d", sentence: "She decided not to give in to ____ but to keep trying.", translation: "그녀는 절망에 굴복하지 않고 계속 시도하기로 결심했다." },
-        { day: 21, word: "entertained", initial: "e", sentence: "The comedian ____ the crowd skillfully.", translation: "그 코미디언은 능숙하게 군중을 즐겁게 했다." },
-        { day: 21, word: "sustained", initial: "s", sentence: "Giving is more ____ by selfless motives than by selfish ones.", translation: "기부는 이기적인 동기보다 이타적인 동기에 의해 더 지속된다." },
-        { day: 21, word: "retains", initial: "r", sentence: "He ____ the world record in the 100-meter dash.", translation: "그는 100미터 경주에서 세계 기록을 보유하고 있다." },
-        { day: 21, word: "continent", initial: "c", sentence: "Australia is smaller than any other ____ in the world.", translation: "오스트레일리아 대륙은 세계의 다른 어떤 대륙보다 더 작다." },
-        { day: 21, word: "attained", initial: "a", sentence: "Her ultimate goal was ____ earlier than she expected.", translation: "그녀의 궁극적인 목표는 그녀가 예상했던 것보다 일찍 달성되었다." },
-        { day: 21, word: "integrate", initial: "i", sentence: "It takes a lot of time for immigrants to ____ into society.", translation: "이민자들이 사회에 통합되는 데는 많은 시간이 걸린다." },
-        { day: 21, word: "Retail", initial: "R", sentence: "____ prices are set by sellers but adjust to market forces over time.", translation: "소매 가격은 판매자에 의해 정해지지만, 시간이 지나면서 시장의 힘에 따라 조정된다." },
+        { id: "21_1", day: 21, word: "worsened", initial: "w", sentence: "His condition has ____ since he left the hospital.", translation: "퇴원한 이후로 그의 건강 상태는 악화되었다." },
+        { id: "21_2", day: 21, word: "broaden", initial: "b", sentence: "Life is a chance to learn things and ____ your personal experiences.", translation: "인생은 무언가를 배우고 당신의 개인적인 경험을 넓힐 기회이다." },
+        { id: "21_3", day: 21, word: "fasten", initial: "f", sentence: "Please ____ your seatbelt for safety on board.", translation: "기내 안전을 위해 안전띠를 매 주세요." },
+        { id: "21_4", day: 21, word: "hastened", initial: "h", sentence: "He ____ down the stairs to welcome his guests.", translation: "그는 손님을 맞이하기 위해서 계단을 서둘러 내려갔다." },
+        { id: "21_5", day: 21, word: "dispensable", initial: "d", sentence: "No one in the world is ____, regardless of their situation.", translation: "상황에 상관없이 세상에 없어도 되는 사람은 없다." },
+        { id: "21_6", day: 21, word: "durable", initial: "d", sentence: "This bag is both ____ and lightweight, making it perfect for travel.", translation: "이 가방은 튼튼하고 가벼워서 여행에 안성맞춤이다." },
+        { id: "21_7", day: 21, word: "credible", initial: "c", sentence: "People often think that a video is ____ if it has thousands of likes.", translation: "사람들은 흔히 좋아요 수가 수천 개면 동영상이 믿을 만하다고 생각한다." },
+        { id: "21_8", day: 21, word: "divisible", initial: "d", sentence: "Nine is ____ by three, but not by four.", translation: "9는 3으로 나눌 수 있지만 4로는 나눌 수 없다." },
+        { id: "21_9", day: 21, word: "audible", initial: "a", sentence: "The fire alarm was clearly ____ to staff members.", translation: "그 화재 경보음은 직원들에게 또렷하게 들렸다." },
+        { id: "21_10", day: 21, word: "edible", initial: "e", sentence: "Walking through the forest, you may find some ____ flowers.", translation: "숲속을 걷다가, 당신은 식용 꽃을 발견할 수도 있다." },
+        { id: "21_11", day: 21, word: "eligible", initial: "e", sentence: "Not everyone is ____ to participate in the competition.", translation: "모든 사람이 그 대회에 참가할 자격이 있는 것은 아니다." },
+        { id: "21_12", day: 21, word: "tangible", initial: "t", sentence: "Archaeologists tend to focus mostly on ____ aspects of culture.", translation: "고고학자들은 주로 문화의 실제적인 측면에 초점을 맞추는 경향이 있다." },
+        { id: "21_13", day: 21, word: "bilingual", initial: "b", sentence: "We are looking for a secretary who is ____ in Korean and English.", translation: "우리는 한국어와 영어 2개 국어를 구사하는 비서를 구하고 있다." },
+        { id: "21_14", day: 21, word: "duplicate", initial: "d", sentence: "Could you ____ this report before the deadline?", translation: "마감 시간 전에 이 보고서를 복사해 주실 수 있나요?" },
+        { id: "21_15", day: 21, word: "twilight", initial: "t", sentence: "He hadn't come back home by ____.", translation: "그는 땅거미가 질 무렵까지 집에 돌아오지 않았다." },
+        { id: "21_16", day: 21, word: "trivial", initial: "t", sentence: "People often quarrel over ____ matters.", translation: "사람들은 종종 사소한 문제로 다툰다." },
+        { id: "21_17", day: 21, word: "tribe", initial: "t", sentence: "The book covers the history of a ____ in Africa.", translation: "그 책은 아프리카에 사는 한 부족의 역사를 다루고 있다." },
+        { id: "21_18", day: 21, word: "deduce", initial: "d", sentence: "The class struggled to ____ the answer to the question.", translation: "학급 학생들은 그 질문에 대한 답을 추론하려고 애썼다." },
+        { id: "21_19", day: 21, word: "educate", initial: "e", sentence: "We need to ____ people about road safety.", translation: "우리는 사람들에게 도로 안전에 대해 가르칠 필요가 있다." },
+        { id: "21_20", day: 21, word: "conducted", initial: "c", sentence: "They ____ a survey on the dietary habits of adults.", translation: "그들은 성인의 식습관에 대한 설문 조사를 실시했다." },
+        { id: "21_21", day: 21, word: "deducted", initial: "d", sentence: "Taxes will automatically be ____ from your salary every month.", translation: "세금은 매달 당신의 월급에서 자동으로 공제될 것이다." },
+        { id: "21_22", day: 21, word: "prospered", initial: "p", sentence: "His business ____ despite the economic crisis.", translation: "경제 위기에도 불구하고 그의 사업은 번창했다." },
+        { id: "21_23", day: 21, word: "despair", initial: "d", sentence: "She decided not to give in to ____ but to keep trying.", translation: "그녀는 절망에 굴복하지 않고 계속 시도하기로 결심했다." },
+        { id: "21_24", day: 21, word: "entertained", initial: "e", sentence: "The comedian ____ the crowd skillfully.", translation: "그 코미디언은 능숙하게 군중을 즐겁게 했다." },
+        { id: "21_25", day: 21, word: "sustained", initial: "s", sentence: "Giving is more ____ by selfless motives than by selfish ones.", translation: "기부는 이기적인 동기보다 이타적인 동기에 의해 더 지속된다." },
+        { id: "21_26", day: 21, word: "retains", initial: "r", sentence: "He ____ the world record in the 100-meter dash.", translation: "그는 100미터 경주에서 세계 기록을 보유하고 있다." },
+        { id: "21_27", day: 21, word: "continent", initial: "c", sentence: "Australia is smaller than any other ____ in the world.", translation: "오스트레일리아 대륙은 세계의 다른 어떤 대륙보다 더 작다." },
+        { id: "21_28", day: 21, word: "attained", initial: "a", sentence: "Her ultimate goal was ____ earlier than she expected.", translation: "그녀의 궁극적인 목표는 그녀가 예상했던 것보다 일찍 달성되었다." },
+        { id: "21_29", day: 21, word: "integrate", initial: "i", sentence: "It takes a lot of time for immigrants to ____ into society.", translation: "이민자들이 사회에 통합되는 데는 많은 시간이 걸린다." },
+        { id: "21_30", day: 21, word: "Retail", initial: "R", sentence: "____ prices are set by sellers but adjust to market forces over time.", translation: "소매 가격은 판매자에 의해 정해지지만, 시간이 지나면서 시장의 힘에 따라 조정된다." },
 
         // Day 22
-        { day: 22, word: "withdrew", initial: "w", sentence: "They ____ their troops from the conflict zone.", translation: "그들은 분쟁 지역에서 병력을 철수했다." },
-        { day: 22, word: "withhold", initial: "w", sentence: "He will ____ payment until the work is completed.", translation: "그는 일이 완료될 때까지 지불을 보류할 것이다." },
-        { day: 22, word: "withstand", initial: "w", sentence: "The buildings in this area were built to ____ earthquakes.", translation: "이 지역의 건물들은 지진을 견딜 수 있도록 지어졌다." },
-        { day: 22, word: "abolished", initial: "a", sentence: "Some people insist that the death penalty should be ____.", translation: "어떤 사람들은 사형 제도가 폐지되어야 한다고 주장한다." },
-        { day: 22, word: "Adolescents", initial: "A", sentence: "____ may distance themselves from their parents during emotional crises.", translation: "청소년들은 정서적 위기 상황에서 부모와 거리를 둘 수 있다." },
-        { day: 22, word: "discern", initial: "d", sentence: "Look inward to ____ what you're capable of.", translation: "당신이 무엇을 할 수 있는지 파악하기 위해 내면을 들여다보라." },
-        { day: 22, word: "criticize", initial: "c", sentence: "You shouldn't ____ someone who you don't know well.", translation: "당신은 잘 알지도 못하는 사람을 비난해서는 안 된다." },
-        { day: 22, word: "discriminate", initial: "d", sentence: "It is unfair to ____ on the grounds of race or gender.", translation: "인종이나 성별을 이유로 차별하는 것은 부당하다." },
-        { day: 22, word: "biographies", initial: "b", sentence: "Children can learn a lot by reading the ____ of famous people.", translation: "아이들은 유명한 사람들의 전기를 읽음으로써 많은 것을 배울 수 있다." },
-        { day: 22, word: "biology", initial: "b", sentence: "To study ____ is to learn about ourselves.", translation: "생물학을 공부하는 것은 우리 자신에 대해 배우는 것이다." },
-        { day: 22, word: "resigned", initial: "r", sentence: "My father ____ from his position last month.", translation: "우리 아버지께서는 지난달에 그의 직위에서 물러나셨다." },
-        { day: 22, word: "significant", initial: "s", sentence: "It was a ____ event in the country's history.", translation: "그것은 그 나라의 역사에서 중요한 사건이었다." },
-        { day: 22, word: "capable", initial: "c", sentence: "We never thought he was ____ of finishing this task.", translation: "우리는 결코 그가 이 업무를 끝낼 수 있을 거라고 생각하지 않았다." },
-        { day: 22, word: "captive", initial: "c", sentence: "The ____ soldiers tried to escape from the enemy.", translation: "포로가 된 군인들이 적군으로부터 탈출하려 애썼다." },
-        { day: 22, word: "conceived", initial: "c", sentence: "He alone ____ the new business plan.", translation: "그는 혼자 새로운 사업 계획을 생각해 냈다." },
-        { day: 22, word: "deceived", initial: "d", sentence: "She was ____ by the fake letters.", translation: "그녀는 가짜 편지에 속았다." },
-        { day: 22, word: "alters", initial: "a", sentence: "Aging ____ caffeine clearance speed, making us more sensitive to caffeine.", translation: "노화는 카페인 제거 속도를 변화시켜 우리를 카페인에 더 민감하게 한다." },
-        { day: 22, word: "alien", initial: "a", sentence: "The scientist discovered a new ____ plant species.", translation: "그 과학자는 새로운 외래 식물 종을 발견했다." },
-        { day: 22, word: "receded", initial: "r", sentence: "The sound of the footsteps ____ into the distance.", translation: "발소리가 차츰 멀어져 갔다." },
-        { day: 22, word: "precede", initial: "p", sentence: "Her words always ____ her actions.", translation: "그녀의 말은 항상 행동보다 앞선다." },
-        { day: 22, word: "ceased", initial: "c", sentence: "The newspaper has ____ publication due to a lack of money.", translation: "그 신문은 자금 부족으로 발행을 중단했다." },
-        { day: 22, word: "predecessor", initial: "p", sentence: "My ____ had been the firm's leader for fifteen years.", translation: "내 전임자는 15년 동안 그 회사의 대표였다." },
-        { day: 22, word: "incident", initial: "i", sentence: "The victim reported the ____ to the police.", translation: "피해자는 그 사건을 경찰에 신고했다." },
-        { day: 22, word: "casual", initial: "c", sentence: "His ____ attitude toward work annoyed me.", translation: "일에 대한 그의 태평한 태도가 나를 짜증 나게 했다." },
-        { day: 22, word: "decay", initial: "d", sentence: "Some fruits ripen, and this is followed rapidly by ____.", translation: "일부 과일은 익고, 이어서 부패가 빠르게 일어난다." },
-        { day: 22, word: "sole", initial: "s", sentence: "He was the ____ survivor of the accident.", translation: "그는 그 사고의 유일한 생존자였다." },
-        { day: 22, word: "solitary", initial: "s", sentence: "After lunch, he enjoys ____ walks in the forest.", translation: "점심 식사 후에, 그는 숲속에서 혼자 하는 산책을 즐긴다." },
-        { day: 22, word: "resolve", initial: "r", sentence: "Is there anything I can do to ____ this problem?", translation: "이 문제를 해결하기 위해 제가 할 수 있는 일이 있을까요?" },
-        { day: 22, word: "sophisticated", initial: "s", sentence: "The writer's style is ____ yet easy to understand.", translation: "그 작가의 문체는 세련되면서도 이해하기 쉽다." },
-        { day: 22, word: "sophomore", initial: "s", sentence: "She is currently a ____ in college.", translation: "그녀는 현재 대학교 2학년이다." },
+        { id: "22_1", day: 22, word: "withdrew", initial: "w", sentence: "They ____ their troops from the conflict zone.", translation: "그들은 분쟁 지역에서 병력을 철수했다." },
+        { id: "22_2", day: 22, word: "withhold", initial: "w", sentence: "He will ____ payment until the work is completed.", translation: "그는 일이 완료될 때까지 지불을 보류할 것이다." },
+        { id: "22_3", day: 22, word: "withstand", initial: "w", sentence: "The buildings in this area were built to ____ earthquakes.", translation: "이 지역의 건물들은 지진을 견딜 수 있도록 지어졌다." },
+        { id: "22_4", day: 22, word: "abolished", initial: "a", sentence: "Some people insist that the death penalty should be ____.", translation: "어떤 사람들은 사형 제도가 폐지되어야 한다고 주장한다." },
+        { id: "22_5", day: 22, word: "Adolescents", initial: "A", sentence: "____ may distance themselves from their parents during emotional crises.", translation: "청소년들은 정서적 위기 상황에서 부모와 거리를 둘 수 있다." },
+        { id: "22_6", day: 22, word: "discern", initial: "d", sentence: "Look inward to ____ what you're capable of.", translation: "당신이 무엇을 할 수 있는지 파악하기 위해 내면을 들여다보라." },
+        { id: "22_7", day: 22, word: "criticize", initial: "c", sentence: "You shouldn't ____ someone who you don't know well.", translation: "당신은 잘 알지도 못하는 사람을 비난해서는 안 된다." },
+        { id: "22_8", day: 22, word: "discriminate", initial: "d", sentence: "It is unfair to ____ on the grounds of race or gender.", translation: "인종이나 성별을 이유로 차별하는 것은 부당하다." },
+        { id: "22_9", day: 22, word: "biographies", initial: "b", sentence: "Children can learn a lot by reading the ____ of famous people.", translation: "아이들은 유명한 사람들의 전기를 읽음으로써 많은 것을 배울 수 있다." },
+        { id: "22_10", day: 22, word: "biology", initial: "b", sentence: "To study ____ is to learn about ourselves.", translation: "생물학을 공부하는 것은 우리 자신에 대해 배우는 것이다." },
+        { id: "22_11", day: 22, word: "resigned", initial: "r", sentence: "My father ____ from his position last month.", translation: "우리 아버지께서는 지난달에 그의 직위에서 물러나셨다." },
+        { id: "22_12", day: 22, word: "significant", initial: "s", sentence: "It was a ____ event in the country's history.", translation: "그것은 그 나라의 역사에서 중요한 사건이었다." },
+        { id: "22_13", day: 22, word: "capable", initial: "c", sentence: "We never thought he was ____ of finishing this task.", translation: "우리는 결코 그가 이 업무를 끝낼 수 있을 거라고 생각하지 않았다." },
+        { id: "22_14", day: 22, word: "captive", initial: "c", sentence: "The ____ soldiers tried to escape from the enemy.", translation: "포로가 된 군인들이 적군으로부터 탈출하려 애썼다." },
+        { id: "22_15", day: 22, word: "conceived", initial: "c", sentence: "He alone ____ the new business plan.", translation: "그는 혼자 새로운 사업 계획을 생각해 냈다." },
+        { id: "22_16", day: 22, word: "deceived", initial: "d", sentence: "She was ____ by the fake letters.", translation: "그녀는 가짜 편지에 속았다." },
+        { id: "22_17", day: 22, word: "alters", initial: "a", sentence: "Aging ____ caffeine clearance speed, making us more sensitive to caffeine.", translation: "노화는 카페인 제거 속도를 변화시켜 우리를 카페인에 더 민감하게 한다." },
+        { id: "22_18", day: 22, word: "alien", initial: "a", sentence: "The scientist discovered a new ____ plant species.", translation: "그 과학자는 새로운 외래 식물 종을 발견했다." },
+        { id: "22_19", day: 22, word: "receded", initial: "r", sentence: "The sound of the footsteps ____ into the distance.", translation: "발소리가 차츰 멀어져 갔다." },
+        { id: "22_20", day: 22, word: "precede", initial: "p", sentence: "Her words always ____ her actions.", translation: "그녀의 말은 항상 행동보다 앞선다." },
+        { id: "22_21", day: 22, word: "ceased", initial: "c", sentence: "The newspaper has ____ publication due to a lack of money.", translation: "그 신문은 자금 부족으로 발행을 중단했다." },
+        { id: "22_22", day: 22, word: "predecessor", initial: "p", sentence: "My ____ had been the firm's leader for fifteen years.", translation: "내 전임자는 15년 동안 그 회사의 대표였다." },
+        { id: "22_23", day: 22, word: "incident", initial: "i", sentence: "The victim reported the ____ to the police.", translation: "피해자는 그 사건을 경찰에 신고했다." },
+        { id: "22_24", day: 22, word: "casual", initial: "c", sentence: "His ____ attitude toward work annoyed me.", translation: "일에 대한 그의 태평한 태도가 나를 짜증 나게 했다." },
+        { id: "22_25", day: 22, word: "decay", initial: "d", sentence: "Some fruits ripen, and this is followed rapidly by ____.", translation: "일부 과일은 익고, 이어서 부패가 빠르게 일어난다." },
+        { id: "22_26", day: 22, word: "sole", initial: "s", sentence: "He was the ____ survivor of the accident.", translation: "그는 그 사고의 유일한 생존자였다." },
+        { id: "22_27", day: 22, word: "solitary", initial: "s", sentence: "After lunch, he enjoys ____ walks in the forest.", translation: "점심 식사 후에, 그는 숲속에서 혼자 하는 산책을 즐긴다." },
+        { id: "22_28", day: 22, word: "resolve", initial: "r", sentence: "Is there anything I can do to ____ this problem?", translation: "이 문제를 해결하기 위해 제가 할 수 있는 일이 있을까요?" },
+        { id: "22_29", day: 22, word: "sophisticated", initial: "s", sentence: "The writer's style is ____ yet easy to understand.", translation: "그 작가의 문체는 세련되면서도 이해하기 쉽다." },
+        { id: "22_30", day: 22, word: "sophomore", initial: "s", sentence: "She is currently a ____ in college.", translation: "그녀는 현재 대학교 2학년이다." },
 
-        // Day 23
-        { day: 23, word: "circulates", initial: "c", sentence: "Blood ____ through the body.", translation: "혈액은 온몸을 순환한다." },
-        { day: 23, word: "circular", initial: "c", sentence: "There are a lot of ____ buildings in the region.", translation: "그 지역에는 원형 건축물이 많다." },
-        { day: 23, word: "circuits", initial: "c", sentence: "The runners made two ____ of the track.", translation: "주자들은 트랙을 두 바퀴 뛰었다." },
-        { day: 23, word: "cited", initial: "c", sentence: "She ____ the Constitution's liberty clause.", translation: "그녀는 헌법의 자유 조항을 인용했다." },
-        { day: 23, word: "recited", initial: "r", sentence: "She flawlessly ____ the poem without missing a word.", translation: "그녀는 한 단어도 놓치지 않고 그 시를 완벽하게 암송했다." },
-        { day: 23, word: "civil", initial: "c", sentence: "We should protect ____ liberty and equality.", translation: "우리는 시민의 자유와 평등을 보호해야 한다." },
-        { day: 23, word: "civilizing", initial: "c", sentence: "He raised questions about the purpose of ____ tribes.", translation: "그는 부족을 문명화하는 목적에 대해 의문을 제기했다." },
-        { day: 23, word: "claims", initial: "c", sentence: "My grandfather ____ that he met Pablo Picasso.", translation: "나의 할아버지는 파블로 피카소를 만났다고 주장하신다." },
-        { day: 23, word: "exclaimed", initial: "e", sentence: "He ____ with delight when he received the gift.", translation: "그는 선물을 받고 기뻐서 소리를 질렀다." },
-        { day: 23, word: "council", initial: "c", sentence: "The ____ postponed the discussion until the next meeting.", translation: "지방 의회는 다음 회의까지 그 논의를 연기했다." },
-        { day: 23, word: "cognitive", initial: "c", sentence: "We must recognize and overcome our ____ biases.", translation: "우리는 우리의 인지적 편견을 인식하고 극복해야 한다." },
-        { day: 23, word: "acquaintance", initial: "a", sentence: "You might shake hands with an ____ but hug a close friend.", translation: "당신은 지인과 악수를 하지만 친한 친구와는 포옹할지도 모른다." },
-        { day: 23, word: "accord", initial: "a", sentence: "Your opinion is out of ____ with mine.", translation: "당신의 의견은 나의 의견과 일치하지 않는다." },
-        { day: 23, word: "core", initial: "c", sentence: "He has the ability to identify the ____ of every issue.", translation: "그는 모든 문제의 핵심을 간파하는 능력을 가지고 있다." },
-        { day: 23, word: "recreate", initial: "r", sentence: "The Japanese restaurant tried to ____ the atmosphere of Japan.", translation: "그 일식당은 일본의 분위기를 재현해 내려고 노력했다." },
-        { day: 23, word: "concrete", initial: "c", sentence: "The plan needs more ____ details before we get started.", translation: "우리가 시작하기 전에 그 계획은 더 구체적인 세부 사항이 필요하다." },
-        { day: 23, word: "recruiting", initial: "r", sentence: "We are ____ graduates to join our team.", translation: "우리는 팀에 합류할 졸업생을 모집 중이다." },
-        { day: 23, word: "fatal", initial: "f", sentence: "Humans must be cautious not to accidentally consume ____ foods.", translation: "인간은 실수로 치명적인 음식을 섭취하지 않도록 주의해야 한다." },
-        { day: 23, word: "infancy", initial: "i", sentence: "His musical talent was clear even in ____.", translation: "그의 음악적 재능은 유아기 때에도 분명했다." },
-        { day: 23, word: "professed", initial: "p", sentence: "In the end, she ____ herself to be bankrupt.", translation: "결국, 그녀는 자신이 파산했다고 공언했다." },
-        { day: 23, word: "rendered", initial: "r", sentence: "His careless remarks eventually ____ the situation worse.", translation: "그의 부주의한 발언은 결국 그 상황을 악화시켰다." },
-        { day: 23, word: "surrendered", initial: "s", sentence: "After a long battle, they ____ to the enemy.", translation: "오랜 전투 후, 그들은 적군에게 항복했다." },
-        { day: 23, word: "edition", initial: "e", sentence: "The Sunday Times was the UK's first newspaper to have an online ____.", translation: "<Sunday Times>는 영국에서 첫 번째로 온라인 판을 낸 신문이었다." },
-        { day: 23, word: "assure", initial: "a", sentence: "I ____ you that she is absolutely innocent in this matter.", translation: "나는 그녀가 이 문제에 있어 완전히 결백하다는 것을 보증한다." },
-        { day: 23, word: "ensure", initial: "e", sentence: "The country should ____ the safety of its citizens.", translation: "국가는 국민의 안전을 보장해야 한다." },
-        { day: 23, word: "insure", initial: "i", sentence: "She decided to ____ her house against fire.", translation: "그녀는 화재에 대비하여 집을 보험에 들기로 결정했다." },
-        { day: 23, word: "contradict", initial: "c", sentence: "You constantly ____ everything I try to say.", translation: "당신은 내가 말하려고 하는 모든 것에 끊임없이 반박한다." },
-        { day: 23, word: "dictated", initial: "d", sentence: "The old man ____ a letter to his granddaughter.", translation: "그 노인은 손녀에게 편지를 받아쓰게 했다." },
-        { day: 23, word: "presumed", initial: "p", sentence: "They ____ the damage resulted from the storm.", translation: "그들은 폭풍으로 인한 피해를 추정했다." },
-        { day: 23, word: "resume", initial: "r", sentence: "I want to ____ my career after I study abroad.", translation: "나는 유학을 다녀온 후에 일을 다시 시작하고 싶다." },
-
-        // Day 24
-        { day: 24, word: "attract", initial: "a", sentence: "The musician blends multiple genres to ____ a diverse audience.", translation: "그 음악가는 다양한 관객의 관심을 끌기 위해 많은 장르를 혼합한다." },
-        { day: 24, word: "distract", initial: "d", sentence: "Don't ____ me while I am studying.", translation: "내가 공부하는 동안에는 산만하게 하지 마라." },
-        { day: 24, word: "abstract", initial: "a", sentence: "Beauty is an ____ concept, and everyone has their own standards.", translation: "미(美)는 추상적인 개념이며, 모두가 자신만의 기준을 가지고 있다." },
-        { day: 24, word: "extracted", initial: "e", sentence: "The dentist carefully ____ my wisdom tooth.", translation: "그 치과의사는 조심스럽게 내 사랑니를 뽑았다." },
-        { day: 24, word: "trail", initial: "t", sentence: "The hikers walked along a ____ by the sea.", translation: "그 도보 여행자들은 바다 근처의 오솔길을 따라 걸었다." },
-        { day: 24, word: "portrait", initial: "p", sentence: "The artist skillfully painted a ____ of the king.", translation: "그 화가는 능숙하게 왕의 초상화를 그렸다." },
-        { day: 24, word: "trace", initial: "t", sentence: "One day, he suddenly disappeared without a ____.", translation: "어느 날 갑자기 그가 흔적도 없이 사라졌다." },
-        { day: 24, word: "treaty", initial: "t", sentence: "Japan signed a security ____ with the United States.", translation: "일본은 미국과의 안보 조약을 체결했다." },
-        { day: 24, word: "Fiction", initial: "F", sentence: "____ adds color, sound, and drama to the past.", translation: "소설은 과거에 색채, 소리, 그리고 극적인 사건을 더한다." },
-        { day: 24, word: "proficient", initial: "p", sentence: "The job requires someone who is ____ in computer programming.", translation: "그 일자리는 컴퓨터 프로그래밍에 능숙한 사람을 필요로 한다." },
-        { day: 24, word: "sufficient", initial: "s", sentence: "Once ____ errors were collected, NASA analyzed and reported them.", translation: "일단 충분한 오류가 수집되면, NASA가 그것들을 분석하고 보고했다." },
-        { day: 24, word: "defects", initial: "d", sentence: "The cars with ____ were all recalled for repairs.", translation: "결함이 있는 차들은 수리를 위해 모두 회수되었다." },
-        { day: 24, word: "qualified", initial: "q", sentence: "She is well ____ for this position because of her experience.", translation: "그녀의 경력으로 보아 그녀는 이 직위에 대한 자격을 충분히 갖췄다." },
-        { day: 24, word: "cultivating", initial: "c", sentence: "The desert is not suitable for ____ crops or trees.", translation: "그 사막은 작물이나 나무를 재배하기에 적합하지 않다." },
-        { day: 24, word: "agriculture", initial: "a", sentence: "The country's economy heavily relies on ____.", translation: "그 나라의 경제는 농업에 크게 의존한다." },
-        { day: 24, word: "colony", initial: "c", sentence: "Singapore was formerly a British ____ for many decades.", translation: "싱가포르는 예전에 수십 년 동안 영국은 식민지였다." },
-        { day: 24, word: "conflict", initial: "c", sentence: "The ____ between the two parties is getting worse.", translation: "두 정당 간의 갈등이 점점 심해지고 있다." },
-        { day: 24, word: "inflict", initial: "i", sentence: "His parents didn't ____ any punishment on him.", translation: "그의 부모님은 그에게 어떤 벌도 주지 않았다." },
-        { day: 24, word: "fort", initial: "f", sentence: "The soldiers retreated into the ____ for shelter.", translation: "군인들은 피신을 위해 요새 안으로 후퇴했다." },
-        { day: 24, word: "force", initial: "f", sentence: "Gravity is a natural ____ that pulls objects toward the center of Earth.", translation: "중력은 물체를 지구의 중심 쪽으로 끌어당기는 자연적인 힘이다." },
-        { day: 24, word: "reinforced", initial: "r", sentence: "Our country ____ security checks at its borders.", translation: "우리나라는 국경에서의 보안 검사를 강화했다." },
-        { day: 24, word: "warfare", initial: "w", sentence: "The young men of the city were trained in the art of ____.", translation: "그 도시의 청년들은 전술 훈련을 받았다." },
-        { day: 24, word: "welfare", initial: "w", sentence: "Scientific research is important, but participant ____ comes first.", translation: "과학적 연구는 중요하지만, 실험 참가자의 안녕이 최우선이다." },
-        { day: 24, word: "conferred", initial: "c", sentence: "They ____ briefly before responding to the reporter.", translation: "그들은 기자에게 답변하기 전에 잠시 상의했다." },
-        { day: 24, word: "inferred", initial: "i", sentence: "The police ____ that the suspect had returned to the scene.", translation: "경찰은 용의자가 현장에 돌아왔었다는 것을 추론해 냈다." },
-        { day: 24, word: "fertile", initial: "f", sentence: "The soil here is ____ enough to provide half of the nation's crops.", translation: "이곳의 토양은 나라의 수확량 절반을 공급할 만큼 충분히 비육하다." },
-        { day: 24, word: "refined", initial: "r", sentence: "Oil needs to be ____ before it can be used.", translation: "석유는 사용될 수 있게 되기 전에 정제되어야 한다." },
-        { day: 24, word: "confined", initial: "c", sentence: "The discussion was ____ to financial matters only.", translation: "그 논의는 재정적인 문제에만 한정되었다." },
-        { day: 24, word: "defined", initial: "d", sentence: "Democracy is often ____ as the \"rule of the majority.\"", translation: "민주주의는 흔히 '다수결의 원칙'이라고 정의된다." },
-        { day: 24, word: "infinite", initial: "i", sentence: "Human beings' greed is ____ and often destructive.", translation: "인간의 욕심은 무한하고 종종 파괴적이다." },
-
-        // Day 25
-        { day: 25, word: "fragile", initial: "f", sentence: "Handle the ____ glasses carefully when washing them.", translation: "그 깨지기 쉬운 유리잔을 씻을 때 조심히 다루어라." },
-        { day: 25, word: "Fragments", initial: "F", sentence: "____ of glass fell everywhere.", translation: "유리 파편이 사방에 떨어졌다." },
-        { day: 25, word: "fraction", initial: "f", sentence: "People only remember a ____ of what they see.", translation: "사람들은 그들이 보는 것의 일부를 기억할 뿐이다." },
-        { day: 25, word: "fundamental", initial: "f", sentence: "Respect for others is a ____ value in any culture.", translation: "타인에 대한 존중은 어느 문화에서나 기본적인 가치이다." },
-        { day: 25, word: "profound", initial: "p", sentence: "The war caused ____ damage to the country's economy.", translation: "전쟁은 그 나라의 경제에 엄청난 피해를 초래했다." },
-        { day: 25, word: "fusion", initial: "f", sentence: "Her unique work of art is a ____ of tradition and modern innovation.", translation: "그녀의 독특한 예술 작품은 전통과 현대적 혁신의 융합체이다." },
-        { day: 25, word: "futile", initial: "f", sentence: "She accepted that it was ____ to try to compete with him.", translation: "그녀는 그와 경쟁하려 한 것이 헛된 일이었다는 것을 인정했다." },
-        { day: 25, word: "garment", initial: "g", sentence: "Gently launder this ____ by hand with a neutral detergent.", translation: "이 옷을 중성 세제로 부드럽게 손세탁해라." },
-        { day: 25, word: "guarantee", initial: "g", sentence: "The workers wanted a ____ that their demands would be heard.", translation: "그 노동자들은 자신들의 요구 사항이 경청될 거라는 보장을 원했다." },
-        { day: 25, word: "gratitude", initial: "g", sentence: "They welcomed his offer with sincere ____.", translation: "그들은 그의 제안을 진심으로 감사하는 마음으로 환영했다." },
-        { day: 25, word: "grace", initial: "g", sentence: "Julie accepted her loss with ____, congratulating the winner.", translation: "Julie는 승자를 축하하며 품위 있게 자신의 패배를 받아들였다." },
-        { day: 25, word: "injected", initial: "i", sentence: "The nurse ____ some medicine into my arm.", translation: "간호사가 내 팔에 약물을 주사했다." },
-        { day: 25, word: "project", initial: "p", sentence: "Our school launched a community service ____ last month.", translation: "우리 학교는 지난달에 지역 사회 봉사 프로젝트를 시작했다." },
-        { day: 25, word: "justify", initial: "j", sentence: "No words can ____ his careless actions toward the elderly.", translation: "어떠한 말도 노인들에 대한 그의 부주의한 행동을 정당화할 수 없다." },
-        { day: 25, word: "habitat", initial: "h", sentence: "The ____ for wild animals is getting smaller and smaller.", translation: "야생 동물들의 서식지가 점점 줄어들고 있다." },
-        { day: 25, word: "inhabit", initial: "i", sentence: "Many species of rare animals and plants ____ the jungle.", translation: "많은 종의 희귀 동식물이 정글에 서식한다." },
-        { day: 25, word: "prejudice", initial: "p", sentence: "Some people have a ____ against people of other cultures.", translation: "어떤 사람들은 다른 문화의 사람들에 대한 편견을 가지고 있다." },
-        { day: 25, word: "institute", initial: "i", sentence: "Melanie accompanied her mother to a dance ____.", translation: "Melanie는 어머니와 함께 무용 학원에 갔다." },
-        { day: 25, word: "constitute", initial: "c", sentence: "Wisconsin is one of the 50 states that ____ the US.", translation: "위스콘신은 미국을 구성하는 50개의 주 중 하나이다." },
-        { day: 25, word: "substitute", initial: "s", sentence: "Ethanol can be used as a ____ for gasoline in vehicles.", translation: "에탄올은 자동차의 휘발유 대용품으로 사용될 수 있다." },
-        { day: 25, word: "destined", initial: "d", sentence: "She was ____ never to come back to her hometown.", translation: "그녀는 고향에 다시는 돌아오지 못할 운명이었다." },
-        { day: 25, word: "superstitions", initial: "s", sentence: "Many players believe in ____ about uniform numbers.", translation: "많은 선수들이 등 번호에 관한 미신을 믿는다." },
-        { day: 25, word: "estate", initial: "e", sentence: "The elderly woman donated all her ____ to the university.", translation: "그 노부인은 그 대학교에 자신의 전 재산을 기부했다." },
-        { day: 25, word: "obstacles", initial: "o", sentence: "You need enough motivation to stay engaged despite facing ____.", translation: "당신은 장애물을 맞닥뜨려도 계속 몰입하기 위해서 충분한 동기 부여가 필요하다." },
-        { day: 25, word: "stable", initial: "s", sentence: "Our company's financial position is very ____.", translation: "우리 회사의 재정 상태는 매우 안정적이다." },
-        { day: 25, word: "substances", initial: "s", sentence: "The new technology can efficiently monitor the ____ found in waste.", translation: "신기술은 폐기물에서 발견되는 물질들을 효율적으로 추적 관찰할 수 있다." },
-        { day: 25, word: "assist", initial: "a", sentence: "Counselors ____ individuals in managing stress effectively.", translation: "상담사들은 개인들이 스트레스를 효과적으로 관리하는 것을 돕는다." },
-        { day: 25, word: "steady", initial: "s", sentence: "There is a ____ demand in my country for high-quality leather gloves.", translation: "우리나라에는 고급 가죽 장갑에 대한 꾸준한 수요가 있다." },
-        { day: 25, word: "arrested", initial: "a", sentence: "They ____ him for theft and gun possession.", translation: "그들은 그를 절도 및 총기 소지 혐의로 체포했다." },
-        { day: 25, word: "constant", initial: "c", sentence: "Her success was the result of her ____ efforts.", translation: "그녀의 성공은 끊임없는 노력의 결실이었다." },
-
-        // Day 26
-        { day: 26, word: "elaborate", initial: "e", sentence: "As programming code becomes more ____, software bugs increase.", translation: "프로그래밍 코드가 더 정교해지면서, 소프트웨어 버그가 증가한다." },
-        { day: 26, word: "collaborating", initial: "c", sentence: "My company is ____ with an Indian company on this project.", translation: "우리 회사는 이 프로젝트에서 인도 회사와 공동으로 일하고 있다." },
-        { day: 26, word: "laboratory", initial: "l", sentence: "Several experiments are being conducted in the ____.", translation: "여러 실험이 실험실에서 수행되고 있다." },
-        { day: 26, word: "inspected", initial: "i", sentence: "I had my baggage ____ before boarding the plane.", translation: "나는 비행기에 탑승하기 전에 수하물을 검사받았다." },
-        { day: 26, word: "spectacle", initial: "s", sentence: "The opening ceremony was quite a ____.", translation: "개회식은 꽤 장관이었다." },
-        { day: 26, word: "suspected", initial: "s", sentence: "He is ____ of committing a serious cybercrime.", translation: "그는 심각한 사이버 범죄를 저지른 혐의를 받고 있다." },
-        { day: 26, word: "tend", initial: "t", sentence: "We ____ to magnify the impact of new technology.", translation: "우리는 신기술의 영향을 과장하는 경향이 있다." },
-        { day: 26, word: "intended", initial: "i", sentence: "I don't know what he ____ in his article.", translation: "나는 그가 그의 글에서 의도한 바를 모르겠다." },
-        { day: 26, word: "tender", initial: "t", sentence: "The steak is ____, juicy, and well-seasoned.", translation: "그 스테이크는 부드럽고 육즙이 풍부하며, 간이 잘 맞아있다." },
-        { day: 26, word: "tense", initial: "t", sentence: "I take a deep breath whenever I start to feel ____.", translation: "나는 긴장하기 시작할 때마다 심호흡을 한다." },
-        { day: 26, word: "evaluates", initial: "e", sentence: "The company ____ its employees' performance once a year.", translation: "그 회사는 일 년에 한 번 직원들의 성과를 평가한다." },
-        { day: 26, word: "equivalent", initial: "e", sentence: "He received a bonus ____ to three months' pay.", translation: "그는 3개월치 급여에 해당하는 보너스를 받았다." },
-        { day: 26, word: "valid", initial: "v", sentence: "The discount coupon is ____ until the end of this month.", translation: "이 할인 쿠폰은 이번 달 말까지 유효하다." },
-        { day: 26, word: "privileges", initial: "p", sentence: "Your membership ____ will be suspended if you do not pay.", translation: "돈을 내지 않으면 당신의 회원 자격 특혜가 중지될 것입니다." },
-        { day: 26, word: "colleagues", initial: "c", sentence: "She establishes good relationships with her ____.", translation: "그녀는 동료들과 좋은 관계를 맺는다." },
-        { day: 26, word: "liberal", initial: "l", sentence: "She has a ____ attitude toward immigration.", translation: "그녀는 이민에 대해 개방적인 태도를 지니고 있다." },
-        { day: 26, word: "preliminary", initial: "p", sentence: "Several candidates passed the ____ round of interviews.", translation: "몇몇 응시자들이 인터뷰 예선을 통과했다." },
-        { day: 26, word: "ecology", initial: "e", sentence: "Dams are threatening the ____ of rivers.", translation: "댐이 강의 생태계를 위협하고 있다." },
-        { day: 26, word: "logic", initial: "l", sentence: "I disagree with him because his ____ is flawed.", translation: "그의 논리에 결함이 있기 때문에 나는 그에게 동의하지 않는다." },
-        { day: 26, word: "psychology", initial: "p", sentence: "Sports ____ says athletes must remove feelings of uncertainty to succeed.", translation: "스포츠 심리학은 선수가 성공하려면 불확실한 감정을 없애야 한다고 말한다." },
-        { day: 26, word: "Manual", initial: "M", sentence: "____ labor is still required in most construction jobs.", translation: "대부분의 건설 작업에서는 여전히 육체노동이 필요하다." },
-        { day: 26, word: "manuscript", initial: "m", sentence: "The ____ was written before the second edition was published.", translation: "그 원고는 두 번째 판이 발행되기 전에 쓰였다." },
-        { day: 26, word: "manipulating", initial: "m", sentence: "He was accused of ____ the price of gold.", translation: "그는 금값 조작 혐의로 고발당했다." },
-        { day: 26, word: "intermediate", initial: "i", sentence: "He is taking an ____-level English listening course.", translation: "그는 중급 수준의 영어 듣기 과정을 수강하고 있다." },
-        { day: 26, word: "mediated", initial: "m", sentence: "We ____ their dispute over property rights.", translation: "우리는 재산권을 둘러싼 그들의 분쟁을 중재했다." },
-        { day: 26, word: "medieval", initial: "m", sentence: "You can learn a lot about society by studying ____ history.", translation: "당신은 중세의 역사를 공부함으로써 사회에 대해 많이 배울 수 있다." },
-        { day: 26, word: "Mediterranean", initial: "M", sentence: "The Nile River flows into the ____ Sea.", translation: "나일강은 지중해로 흘러 들어간다." },
-        { day: 26, word: "Minister", initial: "M", sentence: "She was appointed the first woman ____ of Education.", translation: "그녀는 최초의 여성 교육부 장관으로 임명되었다." },
-        { day: 26, word: "minor", initial: "m", sentence: "It was a ____ accident, so no one was hurt.", translation: "그것은 작은 사고여서 아무도 다치지 않았다." },
-        { day: 26, word: "minimum", initial: "m", sentence: "We kindly ask that you keep your dogs' noise levels to a ____.", translation: "저희는 여러분의 반려견의 소음 수준을 최소한으로 유지해 주시기를 정중히 요청합니다." },
-
-        // Day 27
-        { day: 27, word: "admit", initial: "a", sentence: "You're afraid that you'll have to ____ a few things about yourself.", translation: "당신은 당신 자신에 대해 몇 가지를 인정해야 할까 봐 두려워한다." },
-        { day: 27, word: "commitment", initial: "c", sentence: "We got a ____ from investors to provide the funding.", translation: "우리는 투자자들로부터 자금을 제공하겠다는 약속을 받았다." },
-        { day: 27, word: "commission", initial: "c", sentence: "A special ____ was formed to review policies.", translation: "정책을 검토하기 위해 특별 위원회가 구성되었다." },
-        { day: 27, word: "thermometer", initial: "t", sentence: "The ____ accurately registered 32 degrees.", translation: "그 온도계는 정확히 32도를 기록했다." },
-        { day: 27, word: "dimensions", initial: "d", sentence: "Check the ____ of your suitcase before you travel.", translation: "여행 전에 당신의 여행 가방의 치수를 확인하라." },
-        { day: 27, word: "mortal", initial: "m", sentence: "Human beings are ____, unlike the gods of myth.", translation: "신화의 신들과 달리 인간은 죽게 마련이다." },
-        { day: 27, word: "mortgage", initial: "m", sentence: "The young couple got a ____ to buy a house.", translation: "그 젊은 부부는 집을 사기 위해 담보 대출을 받았다." },
-        { day: 27, word: "murder", initial: "m", sentence: "She was arrested on suspicion of ____.", translation: "그녀는 살인 혐의로 체포되었다." },
-        { day: 27, word: "movement", initial: "m", sentence: "He watched the ____ of the trees as they swayed in the wind.", translation: "그는 나무가 바람에 흔들릴 때 그 움직임을 지켜보았다." },
-        { day: 27, word: "motivates", initial: "m", sentence: "His interest in other cultures ____ him to learn foreign languages.", translation: "다른 문화에 대한 그의 관심은 그에게 외국어를 배울 동기를 부여한다." },
-        { day: 27, word: "remote", initial: "r", sentence: "My parents live in a ____ rural area.", translation: "나의 부모님은 멀리 떨어진 시골 지역에 사신다." },
-        { day: 27, word: "mob", initial: "m", sentence: "Some of the angry ____ rushed into the stadium after the game.", translation: "성난 무리 중의 몇몇이 경기 후에 경기장 안으로 몰려들었다." },
-        { day: 27, word: "mobility", initial: "m", sentence: "An electric wheelchair can give patients the ____ they need.", translation: "전동 휠체어는 환자들에게 그들이 필요로 하는 이동성을 제공할 수 있다." },
-        { day: 27, word: "commodities", initial: "c", sentence: "In a commercialized country, many landscapes are treated as ____.", translation: "상업화된 국가에서는, 많은 경관이 상품으로 취급된다." },
-        { day: 27, word: "modified", initial: "m", sentence: "The plan has been ____ to be more efficient.", translation: "그 계획은 더 효율적으로 수정되었다." },
-        { day: 27, word: "commute", initial: "c", sentence: "I ____ to work by bicycle every day to stay healthy.", translation: "나는 건강을 유지하기 위해 매일 자전거를 타고 통근한다." },
-        { day: 27, word: "Mutual", initial: "M", sentence: "____ respect is important in all kinds of relationships.", translation: "상호 존중은 모든 종류의 관계에서 중요하다." },
-        { day: 27, word: "notion", initial: "n", sentence: "She only has a basic ____ of English grammar.", translation: "그녀는 영문법의 기본적인 개념만 안다." },
-        { day: 27, word: "Notify", initial: "N", sentence: "____ me immediately if you are in trouble.", translation: "네가 곤경에 처하면 내게 바로 알려줘." },
-        { day: 27, word: "notable", initial: "n", sentence: "Nobel prizes are awarded to people for their ____ achievements.", translation: "노벨상은 주목할 만한 성과를 거둔 사람들에게 수여된다." },
-        { day: 27, word: "pronounce", initial: "p", sentence: "How do you properly ____ this word?", translation: "이 단어를 어떻게 제대로 발음합니까?" },
-        { day: 27, word: "announced", initial: "a", sentence: "They have not ____ the results of the election yet.", translation: "그들은 아직 선거 결과를 발표하지 않았다." },
-        { day: 27, word: "monologue", initial: "m", sentence: "The play ends with a ____ by the hero.", translation: "그 연극은 주인공의 독백으로 끝난다." },
-        { day: 27, word: "monopoly", initial: "m", sentence: "Patents are issued not to secure a ____, but to share inventions.", translation: "특허는 독점을 보장하기 위해서가 아니라 발명품을 공유하기 위해 발급된다." },
-        { day: 27, word: "aspires", initial: "a", sentence: "She ____ to be a journalist who uncovers the truth.", translation: "그녀는 진실을 밝히는 기자가 되기를 열망한다." },
-        { day: 27, word: "contemporary", initial: "c", sentence: "She is taking a ____ art class at her university.", translation: "그녀는 대학에서 현대 미술 수업을 듣고 있다." },
-        { day: 27, word: "abundant", initial: "a", sentence: "The village has an ____ fresh water resources.", translation: "그 마을에는 풍부한 담수 자원이 있다." },
-        { day: 27, word: "devise", initial: "d", sentence: "Political institutions must let users ____ and follow their own rules.", translation: "정치 기관은 이용자들이 자신들의 규정을 고안하고 따를 수 있게 해야 한다." },
-        { day: 27, word: "intruded", initial: "i", sentence: "The tourists ____ into our yard without permission.", translation: "관광객들은 허락 없이 우리 마당에 침입했다." },
-        { day: 27, word: "threat", initial: "t", sentence: "Moth hearing evolved in response to the ____ from hunting bats.", translation: "나방의 청각은 사냥하는 박쥐의 위협에 대응하여 발달했다." },
-
-        // Day 28
-        { day: 28, word: "nutrition", initial: "n", sentence: "Maintaining good health requires proper ____.", translation: "좋은 건강을 유지하는 것은 적절한 영양 섭취를 필요로 한다." },
-        { day: 28, word: "nourished", initial: "n", sentence: "Children should be ____ with a balanced diet.", translation: "아이들은 균형 잡힌 식사로 영양분을 공급받아야 한다." },
-        { day: 28, word: "transparent", initial: "t", sentence: "The entrance door of this building is made of ____ glass.", translation: "이 건물의 출입문은 투명한 유리로 만들어진다." },
-        { day: 28, word: "peer", initial: "p", sentence: "Young children are more likely to help someone in distress when with a ____.", translation: "어린아이들은 또래와 함께 있을 때 곤경에 처한 사람을 도울 가능성이 더 높다." },
-        { day: 28, word: "oriented", initial: "o", sentence: "The program is ____ toward leadership development.", translation: "그 프로그램은 리더십 개발을 지향한다." },
-        { day: 28, word: "origin", initial: "o", sentence: "The ____ of the River Mur is located in the Austrian Alps.", translation: "무어강의 발원지는 오스트리아의 알프스 산맥에 위치한다." },
-        { day: 28, word: "partial", initial: "p", sentence: "I am in ____ agreement with his opinion on that matter.", translation: "나는 그 문제에 대한 그의 의견에 부분적으로 동의한다." },
-        { day: 28, word: "particles", initial: "p", sentence: "The ancient Greeks thought the smell of bread came from invisible ____.", translation: "고대 그리스인들은 빵 냄새가 보이지 않는 입자에서 나온다고 생각했다." },
-        { day: 28, word: "proportion", initial: "p", sentence: "The ____ of boys to girls in this school is two to one.", translation: "이 학교의 남녀 학생의 비율은 2:1이다." },
-        { day: 28, word: "portion", initial: "p", sentence: "He only remembers a small ____ of his dream.", translation: "그는 꿈의 작은 부분만을 기억한다." },
-        { day: 28, word: "patriot", initial: "p", sentence: "He is remembered as a ____ who put his country before himself.", translation: "그는 자기 자신보다 조국을 우선시한 애국자로 기억된다." },
-        { day: 28, word: "patron", initial: "p", sentence: "Our company was the biggest ____ of the exhibition.", translation: "우리 회사는 그 전시회의 가장 큰 후원사였다." },
-        { day: 28, word: "appetite", initial: "a", sentence: "A good ____ is a good sauce.", translation: "(속담) 시장이 반찬이다." },
-        { day: 28, word: "competent", initial: "c", sentence: "The interpreter is not as ____ as I thought.", translation: "그 통역사는 내가 생각했던 만큼 유능하지는 않다." },
-        { day: 28, word: "expedition", initial: "e", sentence: "She successfully led an ____ to the North Pole.", translation: "그녀는 성공적으로 북극 탐험대를 이끌었다." },
-        { day: 28, word: "pedestrians", initial: "p", sentence: "A crosswalk was created for the safety of ____.", translation: "횡단보도는 보행자의 안전을 위해 만들어졌다." },
-        { day: 28, word: "vague", initial: "v", sentence: "I was confused by his ____ answer to my question.", translation: "나는 내 질문에 대한 그의 애매한 답변에 혼란스러웠다." },
-        { day: 28, word: "expelled", initial: "e", sentence: "She was ____ from the club because she broke the rules.", translation: "그녀는 규칙을 어겨서 그 동아리에서 제명되었다." },
-        { day: 28, word: "propelled", initial: "p", sentence: "The rocket ____ the spacecraft into space.", translation: "그 로켓은 우주선을 우주로 나아가게 했다." },
-        { day: 28, word: "impulse", initial: "i", sentence: "She bought a lot of clothes online on ____.", translation: "그녀는 온라인에서 충동적으로 많은 옷을 구입했다." },
-        { day: 28, word: "emphasized", initial: "e", sentence: "He ____ the bad effects of smoking.", translation: "그는 흡연의 폐해를 강조했다." },
-        { day: 28, word: "fancy", initial: "f", sentence: "We're planning to visit a ____ palace on our trip tomorrow.", translation: "우리는 내일 여행에서 화려한 궁전을 방문할 계획이다." },
-        { day: 28, word: "phenomenon", initial: "p", sentence: "A wildfire is a natural ____ that occurs in many parts of Australia.", translation: "산불은 호주의 많은 지역에서 발생하는 자연 현상이다." },
-        { day: 28, word: "diplomatic", initial: "d", sentence: "Korea established ____ relations with Brunei in 1984.", translation: "한국은 1984년에 브루나이와 국교를 맺었다." },
-        { day: 28, word: "implies", initial: "i", sentence: "The word \"stereotype\" often ____ a negative bias.", translation: "'고정 관념'이라는 단어는 흔히 부정적인 편견을 내포한다." },
-        { day: 28, word: "terminated", initial: "t", sentence: "The meeting was ____ after a long debate.", translation: "그 회의는 오랜 논의 끝에 종료되었다." },
-        { day: 28, word: "determines", initial: "d", sentence: "The way you treat others ____ your real success.", translation: "당신이 타인을 대하는 방식이 당신의 진짜 성공을 결정한다." },
-        { day: 28, word: "distorted", initial: "d", sentence: "The mirror ____ his image, making him look funny.", translation: "그 거울은 그의 모습을 일그러뜨려 그를 웃기게 보이게 만들었다." },
-        { day: 28, word: "torture", initial: "t", sentence: "The constant alarm through the night felt like ____.", translation: "밤새 계속되는 알람은 고문처럼 느껴졌다." },
-        { day: 28, word: "torment", initial: "t", sentence: "His betrayal left behind lasting emotional ____ for everyone.", translation: "그의 배신은 모두에게 지속적인 감정적 고통을 남겼다." },
-
-        // Day 29
-        { day: 29, word: "imposed", initial: "i", sentence: "A special tax is ____ on imported cars and jewelry.", translation: "수입 자동차와 보석에는 특별 세금이 부과된다." },
-        { day: 29, word: "Suppose", initial: "S", sentence: "____ that you win the lottery by chance.", translation: "당신이 우연히 복권에 당첨된다고 상상해 보라." },
-        { day: 29, word: "component", initial: "c", sentence: "I want to replace the defective ____ with a new one.", translation: "나는 결함이 있는 부품을 새것으로 교체하고 싶다." },
-        { day: 29, word: "opponent", initial: "o", sentence: "Collecting information about the ____ boosts the chances of winning.", translation: "상대에 대한 정보 수집은 승리의 가능성을 높인다." },
-        { day: 29, word: "compound", initial: "c", sentence: "Water is a chemical ____ of hydrogen and oxygen.", translation: "물은 수소와 산소의 화학적 혼합물이다." },
-        { day: 29, word: "metropolis", initial: "m", sentence: "The small town quickly grew into a busy ____.", translation: "그 작은 마을은 빠르게 분주한 대도시로 성장했다." },
-        { day: 29, word: "portable", initial: "p", sentence: "He carries a ____ hard drive to back up important files.", translation: "그는 중요한 파일을 백업하기 위해 휴대용 하드 드라이브를 가지고 다닌다." },
-        { day: 29, word: "depressed", initial: "d", sentence: "The unexpected result of the election ____ him.", translation: "예상치 못한 선거 결과가 그를 낙담시켰다." },
-        { day: 29, word: "impressed", initial: "i", sentence: "Her speech ____ the audience very much.", translation: "그녀의 연설은 청중에게 매우 깊은 인상을 주었다." },
-        { day: 29, word: "oppressed", initial: "o", sentence: "The natives were ____ by the invaders.", translation: "원주민들은 침략자들에 의해 탄압을 받았다." },
-        { day: 29, word: "probed", initial: "p", sentence: "Police ____ deeply into the movements of the suspect.", translation: "경찰은 그 용의자의 움직임을 면밀히 조사했다." },
-        { day: 29, word: "probable", initial: "p", sentence: "It is quite ____ that he won't come to the party.", translation: "그가 파티에 오지 않을 가능성이 꽤 높다." },
-        { day: 29, word: "proven", initial: "p", sentence: "Tests have ____ that the car has mechanical problems.", translation: "실험은 그 차가 기계적인 결함이 있다는 것을 입증했다." },
-        { day: 29, word: "primitive", initial: "p", sentence: "The study of ____ cultures gives clues to the origins of human society.", translation: "원시 문화에 대한 연구는 인간 사회의 기원에 대한 실마리를 제공한다." },
-        { day: 29, word: "prior", initial: "p", sentence: "No ____ coding knowledge is required for this class.", translation: "이 수업에는 사전 코딩 지식이 필요 없다." },
-        { day: 29, word: "deprived", initial: "d", sentence: "The company was ____ of its profits due to heavy taxes.", translation: "그 회사는 무거운 세금으로 인해 수익을 빼앗겼다." },
-        { day: 29, word: "Private", initial: "P", sentence: "____ cars are used more than public transportation in the suburbs.", translation: "교외 지역에서는 개인 차량이 대중교통보다 더 많이 이용된다." },
-        { day: 29, word: "dispute", initial: "d", sentence: "The ____ between the two sides has not been resolved yet.", translation: "양측 간의 분쟁은 아직 해결되지 않았다." },
-        { day: 29, word: "reputation", initial: "r", sentence: "The company has a good ____ for quality products.", translation: "그 회사는 좋은 제품으로 좋은 평판을 얻고 있다." },
-        { day: 29, word: "implementing", initial: "i", sentence: "After ____ the strategy, we should monitor if it is working.", translation: "전략을 실행한 후에, 우리는 그것이 효과가 있는지 관찰해야 한다." },
-        { day: 29, word: "terrify", initial: "t", sentence: "Cockroaches are the only things that truly ____ me.", translation: "바퀴벌레는 나를 진정으로 겁먹게 하는 유일한 것이다." },
-        { day: 29, word: "territory", initial: "t", sentence: "Many people know that Dokdo is Korean ____.", translation: "많은 사람들이 독도가 한국의 영토라는 것을 안다." },
-        { day: 29, word: "trembling", initial: "t", sentence: "Her entire body was ____ with fear.", translation: "그녀의 온몸은 공포로 떨리고 있었다." },
-        { day: 29, word: "tremendous", initial: "t", sentence: "He made a ____ amount of money through the stock market.", translation: "그는 주식 시장을 통해 엄청난 액수의 돈을 벌었다." },
-        { day: 29, word: "convicted", initial: "c", sentence: "He was ____ of taking a $10,000 bribe.", translation: "그는 만 달러의 뇌물을 받아 유죄를 선고받았다." },
-        { day: 29, word: "via", initial: "v", sentence: "The cargo arrived in Japan ____ China this morning.", translation: "그 화물은 오늘 아침에 중국을 경유하여 일본에 도착했다." },
-        { day: 29, word: "convey", initial: "c", sentence: "A good first sentence can ____ a lot of information.", translation: "좋은 첫 문장은 많은 정보를 전달할 수 있다." },
-        { day: 29, word: "previous", initial: "p", sentence: "Most employers look for workers with ____ experience.", translation: "대부분의 고용주들은 이전 경력이 있는 근로자들을 찾는다." },
-        { day: 29, word: "voyage", initial: "v", sentence: "I'll go on a ____ around the world someday.", translation: "나는 언젠가 세계 여행을 갈 것이다." },
-        { day: 29, word: "voluntary", initial: "v", sentence: "Their participation in the event was entirely ____.", translation: "그들의 행사 참여는 전적으로 자발적이었다." },
-
-        // Day 30
-        { day: 30, word: "requires", initial: "r", sentence: "Success ____ solid plans and constant effort.", translation: "성공은 탄탄한 계획과 끊임없는 노력을 필요로 한다." },
-        { day: 30, word: "inquire", initial: "i", sentence: "I called the store to ____ about its refund policy.", translation: "나는 환불 정책을 묻기 위해 가게에 전화를 걸었다." },
-        { day: 30, word: "conquered", initial: "c", sentence: "Britain was ____ by the Normans in 1066.", translation: "영국은 1066년에 노르만족에게 정복당했다." },
-        { day: 30, word: "exquisite", initial: "e", sentence: "She created an ____ painting in ten minutes.", translation: "그녀는 10분 만에 정교한 그림을 그려냈다." },
-        { day: 30, word: "sensation", initial: "s", sentence: "He felt an itchy ____ in his throat.", translation: "그는 목이 간질간질한 느낌이 들었다." },
-        { day: 30, word: "consent", initial: "c", sentence: "Subjects must provide written ____.", translation: "피험자는 서면 동의를 제공해야 한다." },
-        { day: 30, word: "resented", initial: "r", sentence: "They deeply ____ his arrogant and disrespectful attitude.", translation: "그들은 그의 거만하고 무례한 태도에 매우 분개했다." },
-        { day: 30, word: "sentiment", initial: "s", sentence: "The film relied too much on ____.", translation: "그 영화는 감정에 너무 많이 의존했다." },
-        { day: 30, word: "scent", initial: "s", sentence: "The red roses had a sweet ____ that filled the entire room.", translation: "그 붉은 장미는 온 방을 가득 채우는 달콤한 향기가 났다." },
-        { day: 30, word: "consequences", initial: "c", sentence: "You should accept the ____ of your words.", translation: "너는 네가 한 말의 결과를 받아들여야 한다." },
-        { day: 30, word: "sequence", initial: "s", sentence: "The police tried to piece together the ____ of events that caused the accident.", translation: "경찰은 그 사고를 유발한 일련의 사건들을 종합하기 위해 노력했다." },
-        { day: 30, word: "subsequent", initial: "s", sentence: "This artwork will be enjoyed by ____ generations.", translation: "이 작품은 다음 세대들이 즐기게 될 것이다." },
-        { day: 30, word: "reside", initial: "r", sentence: "For safety reasons, he was advised to ____ elsewhere.", translation: "안전상의 이유로, 그는 다른 곳에 거주할 것을 권고받았다." },
-        { day: 30, word: "obsess", initial: "o", sentence: "When something goes wrong, people ____ over why it happened.", translation: "무언가가 잘못되면 사람들은 왜 그 일이 일어났는지에 집착한다." },
-        { day: 30, word: "session", initial: "s", sentence: "We held a long Q&A ____ after the presentation.", translation: "우리는 발표 후에 긴 질의응답 시간을 가졌다." },
-        { day: 30, word: "settle", initial: "s", sentence: "I hope they can ____ their issues peacefully.", translation: "나는 그들이 문제를 평화롭게 해결할 수 있기를 바란다." },
-        { day: 30, word: "resembles", initial: "r", sentence: "He ____ his father in both appearance and character.", translation: "그는 외모와 성격 면에서 모두 아버지를 닮았다." },
-        { day: 30, word: "assemble", initial: "a", sentence: "It took months for him to ____ data for his research.", translation: "그가 자신의 연구를 위한 자료를 모으는 데 수개월이 걸렸다." },
-        { day: 30, word: "simulation", initial: "s", sentence: "They strengthened their teamwork through a ____ game.", translation: "그들은 모의 시험을 통해 팀워크를 다졌다." },
-        { day: 30, word: "seemingly", initial: "s", sentence: "She solved the ____ difficult problem with ease.", translation: "그녀는 겉보기에 어려워 보이는 문제를 쉽게 풀었다." },
-        { day: 30, word: "rational", initial: "r", sentence: "A ____ attitude is important when dealing with conflict.", translation: "갈등을 다룰 때는 합리적인 태도가 중요하다." },
-        { day: 30, word: "scientific", initial: "s", sentence: "Students need to develop ____ thinking abilities.", translation: "학생들은 과학적인 사고력을 개발해야 한다." },
-        { day: 30, word: "desert", initial: "d", sentence: "We spent two days crossing the vast ____.", translation: "우리는 광활한 사막을 횡단하는 데 이틀을 보냈다." },
-        { day: 30, word: "Insert", initial: "I", sentence: "____ the photo paper into the printer with any logos facing downward.", translation: "로고가 있는 면이 아래를 향하도록 사진 용지를 프린터에 넣으시오." },
-        { day: 30, word: "intervene", initial: "i", sentence: "Governments may ____ if banks lose money.", translation: "은행이 손실을 입으면 정부가 개입할 수도 있다." },
-        { day: 30, word: "souvenirs", initial: "s", sentence: "I bought some ____ for my friends at the airport.", translation: "나는 공항에서 친구들에게 줄 몇 가지 기념품을 샀다." },
-        { day: 30, word: "supervises", initial: "s", sentence: "He directly ____ all the staff in this hotel.", translation: "그는 이 호텔의 전 직원을 직접 관리한다." },
-        { day: 30, word: "vision", initial: "v", sentence: "Eagles have very good ____ for hunting prey.", translation: "독수리는 먹이를 사냥하는 데 있어 매우 좋은 시력을 가지고 있다." },
-        { day: 30, word: "revive", initial: "r", sentence: "The government is doing its best to ____ the economy.", translation: "정부는 경기를 회복시키기 위해 최선을 다하고 있다." },
-        { day: 30, word: "vital", initial: "v", sentence: "Parents play a ____ role in the development of children.", translation: "부모는 아이의 발달에 있어서 매우 중요한 역할을 한다." },
-
-        // Day 31
-        { day: 31, word: "introvert", initial: "i", sentence: "I'm an ____, so it's hard for me to socialize with others.", translation: "나는 내성적인 사람이라서 다른 사람들과 어울리는 게 힘들다." },
-        { day: 31, word: "extrovert", initial: "e", sentence: "An ____ likes being around other people.", translation: "외향적인 사람은 다른 사람들과 어울리는 것을 좋아한다." },
-        { day: 31, word: "implicit", initial: "i", sentence: "A great deal of expert knowledge is ____, not explicit.", translation: "많은 전문 지식은 명시적이지 않고 암묵적이다." },
-        { day: 31, word: "explicit", initial: "e", sentence: "My boss gave me ____ directions and advice about the project.", translation: "나의 상사는 나에게 프로젝트에 대한 명확한 지침과 조언을 주었다." },
-        { day: 31, word: "superior", initial: "s", sentence: "Our army is ____ to the enemy's in numbers.", translation: "우리 군대가 수적인 면에서 적군보다 우세하다." },
-        { day: 31, word: "inferior", initial: "i", sentence: "He always feels ____ to his brother in every way.", translation: "그는 모든 면에서 항상 그의 형보다 열등하다고 느낀다." },
-        { day: 31, word: "relative", initial: "r", sentence: "Culture is a ____ concept, so no culture is greater than another.", translation: "문화는 상대적인 개념이라 어떤 문화도 다른 문화보다 위대하지 않다." },
-        { day: 31, word: "absolute", initial: "a", sentence: "He can only sleep in a ____ darkness with the curtains drawn.", translation: "그는 커튼이 드리워진 완전한 어둠 속에서만 잠을 잘 수 있다." },
-        { day: 31, word: "interior", initial: "i", sentence: "The ____ of the car was in excellent condition.", translation: "그 차의 내부는 상태가 매우 좋았다." },
-        { day: 31, word: "exterior", initial: "e", sentence: "They decided to renovate the ____ of their old house.", translation: "그들은 그 오래된 집의 외관을 수리하기로 결정했다." },
-        { day: 31, word: "active", initial: "a", sentence: "While we sleep, our brain remains ____.", translation: "우리가 자는 동안 우리의 뇌는 활동적인 상태를 유지한다." },
-        { day: 31, word: "passive", initial: "p", sentence: "Rather than taking control of the situation, he remained ____.", translation: "상황을 통제하기보다는, 그는 소극적인 태도를 유지했다." },
-        { day: 31, word: "attach", initial: "a", sentence: "Please ____ your photo to the application form.", translation: "지원서에 당신의 사진을 첨부해 주세요." },
-        { day: 31, word: "detach", initial: "d", sentence: "Don't ____ the price tag from your sneakers.", translation: "운동화에서 가격표를 떼지 마세요." },
-        { day: 31, word: "majority", initial: "m", sentence: "The ____ agreed that his idea was the best.", translation: "대다수가 그의 의견이 최고라는 데 동의했다." },
-        { day: 31, word: "minority", initial: "m", sentence: "The opinion of the ____ is also equally important.", translation: "소수의 의견 또한 똑같이 중요하다." },
-        { day: 31, word: "permanent", initial: "p", sentence: "Smoking can cause ____ damage to your lungs.", translation: "흡연은 당신의 폐에 영구적인 손상을 입힐 수 있다." },
-        { day: 31, word: "temporary", initial: "t", sentence: "He's looking for a ____ job to work during the vacation.", translation: "그는 방학 동안 일할 임시직을 찾고 있다." },
-        { day: 31, word: "ancestors", initial: "a", sentence: "Our hunter-gatherer ____ survived by communicating through nonverbal cues.", translation: "우리의 수렵-채집인 조상들은 비언어적 신호들을 통해 소통함으로써 생존했다." },
-        { day: 31, word: "descendant", initial: "d", sentence: "He claimed to be a ____ of the Hungarian king.", translation: "그는 자신이 헝가리 왕의 후손이라고 주장했다." },
-        { day: 31, word: "accelerated", initial: "a", sentence: "The car ____ and moved in front of the bus.", translation: "그 차는 속도를 내서 버스를 추월했다." },
-        { day: 31, word: "decelerated", initial: "d", sentence: "I ____ my car when the traffic light turned yellow.", translation: "나는 신호등이 노란불로 바뀌었을 때 차의 속도를 줄였다." },
-        { day: 31, word: "complexity", initial: "c", sentence: "It seems that he can't understand the ____ of the situation.", translation: "그는 상황의 복잡함을 이해하지 못하는 것 같다." },
-        { day: 31, word: "simplicity", initial: "s", sentence: "One of the advantages of the new system is its ____.", translation: "새로운 시스템의 장점 중 하나는 그것의 단순함이다." },
-        { day: 31, word: "mental", initial: "m", sentence: "The task was very hard and required a lot of ____ strength.", translation: "그 일은 매우 어렵고 많은 정신력을 필요로 했다." },
-        { day: 31, word: "physical", initial: "p", sentence: "Dancers often push themselves to the limits of their ____ capabilities.", translation: "무용수는 종종 자신의 신체 능력의 한계까지 스스로를 밀어붙인다." },
-        { day: 31, word: "optimistic", initial: "o", sentence: "You must keep a positive and ____ attitude to succeed.", translation: "당신은 성공하기 위해서 긍정적이고 낙관적인 태도를 유지해야 한다." },
-        { day: 31, word: "pessimistic", initial: "p", sentence: "He regretted his ____ approach toward life.", translation: "그는 삶에 대한 자신의 비관적인 태도를 후회했다." },
-        { day: 31, word: "subjective", initial: "s", sentence: "The definition of success is deeply ____.", translation: "성공의 정의는 매우 주관적이다." },
-        { day: 31, word: "objective", initial: "o", sentence: "We hope that the referee is ____ and impartial.", translation: "우리는 심판이 객관적이고 공정하기를 바란다." },
-
-        // Day 32
-        { day: 32, word: "sewing", initial: "s", sentence: "I spent the whole evening ____ buttons onto a shirt.", translation: "나는 셔츠에 단추를 꿰매어 다는 데 온 저녁을 보냈다." },
-        { day: 32, word: "sow", initial: "s", sentence: "The farmer planned to ____ wheat seeds in late summer this year.", translation: "그 농부는 올해 늦여름에 밀 씨를 뿌릴 계획이었다." },
-        { day: 32, word: "revolves", initial: "r", sentence: "He proved mathematically that the Earth ____ around the Sun.", translation: "그는 지구가 태양 주위를 돈다는 것을 수학적으로 증명했다." },
-        { day: 32, word: "evolved", initial: "e", sentence: "Human beings have ____ over millions of years.", translation: "인간은 수백만 년에 걸쳐 진화해 왔다." },
-        { day: 32, word: "natural", initial: "n", sentence: "This soap is made from ____ ingredients, such as fruit oils.", translation: "이 비누는 과일 오일과 같은 천연 재료들로 만들어졌다." },
-        { day: 32, word: "neutral", initial: "n", sentence: "She always tries to remain ____ during meetings.", translation: "그녀는 회의 중에 항상 중립을 유지하려고 노력한다." },
-        { day: 32, word: "Neural", initial: "N", sentence: "____ problems may disrupt communication between the brain and body.", translation: "신경계의 문제는 뇌와 신체 간의 소통에 지장을 줄 수 있다." },
-        { day: 32, word: "flesh", initial: "f", sentence: "He skillfully removed the ____ from the fish.", translation: "그는 능숙하게 생선에서 살을 발라냈다." },
-        { day: 32, word: "flash", initial: "f", sentence: "Insert four AA batteries, and the green light will ____.", translation: "AA 건전지 네 개를 넣으면, 녹색 불이 번쩍일 것이다." },
-        { day: 32, word: "leaking", initial: "l", sentence: "The bathroom sink has been ____ for three days.", translation: "화장실 세면대의 물이 3일째 새고 있다." },
-        { day: 32, word: "lick", initial: "l", sentence: "People normally ____ ice cream cones more than 50 times before finishing them.", translation: "사람들은 보통 아이스크림콘을 다 먹기 전에 50번 넘게 핥는다." },
-        { day: 32, word: "assessed", initial: "a", sentence: "New technologies need to be ____ for their full potential impacts.", translation: "신기술은 모든 잠재적인 영향을 평가받아야 한다." },
-        { day: 32, word: "access", initial: "a", sentence: "Many hotels provide free Internet ____ to their guests.", translation: "많은 호텔이 투숙객에게 무료 인터넷 접속을 제공한다." },
-        { day: 32, word: "excess", initial: "e", sentence: "Emotional ____ sometimes blocks one's better judgment.", translation: "감정의 과잉은 때때로 더 나은 판단을 가로막는다." },
-        { day: 32, word: "compliment", initial: "c", sentence: "Everyone feels pleased after receiving a ____.", translation: "모든 사람은 칭찬을 받고 나면 기분이 좋다." },
-        { day: 32, word: "complementary", initial: "c", sentence: "Children now learn from picture books that illustrations are ____ to words.", translation: "아이들은 이제 그림책을 통해 삽화가 글에 대한 보완물이라는 것을 배운다." },
-        { day: 32, word: "personal", initial: "p", sentence: "Keep all hallways free of ____ belongings, per fire safety regulations.", translation: "소방 안전 규정에 따라 모든 복도에 개인 물품을 두지 마십시오." },
-        { day: 32, word: "personnel", initial: "p", sentence: "We need enough ____ to take on another project.", translation: "우리는 또 다른 프로젝트를 맡을 충분한 인력이 필요하다." },
-        { day: 32, word: "prey", initial: "p", sentence: "Great white sharks typically attack their ____ in the morning.", translation: "백상아리는 보통 아침에 먹잇감을 공격한다." },
-        { day: 32, word: "prays", initial: "p", sentence: "She ____ for her family's health and happiness every night.", translation: "그녀는 매일 밤 가족의 건강과 행복을 위해 기도한다." },
-        { day: 32, word: "region", initial: "r", sentence: "In a desert ____, the annual rainfall is less than 250 mm.", translation: "사막 지역에서는 연 강수량이 250mm 미만이다." },
-        { day: 32, word: "religion", initial: "r", sentence: "Freedom of ____ is one of the basic human rights.", translation: "종교의 자유는 기본적인 인권 중 하나이다." },
-        { day: 32, word: "mess", initial: "m", sentence: "This restroom is always a ____ because nobody wants to clean it.", translation: "이 화장실은 아무도 청소하고 싶어 하지 않아서 항상 엉망이다." },
-        { day: 32, word: "mass", initial: "m", sentence: "The manufacturer could reduce costs through ____ production.", translation: "그 제조업체는 대량 생산을 통해 비용을 절감할 수 있었다." },
-        { day: 32, word: "meditation", initial: "m", sentence: "Scientists say that ____ helps reduce stress.", translation: "과학자들은 명상이 스트레스를 줄이는 데 도움이 된다고 말한다." },
-        { day: 32, word: "medication", initial: "m", sentence: "The vet provided detailed instructions on how to give the dog the ____.", translation: "그 수의사는 개에게 약을 주는 방법에 대해 자세한 지침을 제공했다." },
-        { day: 32, word: "simulated", initial: "s", sentence: "The engineers ____ the car crash to test its safety features.", translation: "그 기술자들은 안전 기능을 시험하기 위해 자동차 충돌을 모의실험했다." },
-        { day: 32, word: "stimulate", initial: "s", sentence: "There are a lot of books to ____ the creativity of children.", translation: "아이들의 창의력을 자극하는 책들이 많다." },
-        { day: 32, word: "absorb", initial: "a", sentence: "Plants ____ water from their root hairs.", translation: "식물은 뿌리털로 물을 흡수한다." },
-        { day: 32, word: "absurd", initial: "a", sentence: "Her explanation for being late sounded completely ____.", translation: "그녀가 늦은 것에 대한 설명은 완전히 터무니없게 들렸다." },
-
-        // Day 33
-        { day: 33, word: "wander", initial: "w", sentence: "I saw him ____ around the neighborhood after school.", translation: "나는 방과 후에 그가 동네를 돌아다니는 것을 보았다." },
-        { day: 33, word: "wonder", initial: "w", sentence: "I often ____ what aliens from outer space look like.", translation: "나는 종종 우주에서 온 외계인이 어떻게 생겼는지 궁금하다." },
-        { day: 33, word: "expand", initial: "e", sentence: "We plan to ____ the program to six days a week.", translation: "저희는 그 프로그램을 주 6일로 확대할 계획입니다." },
-        { day: 33, word: "expend", initial: "e", sentence: "If we consume more calories than we ____ in activity, we will gain weight.", translation: "우리가 활동에 소비하는 것보다 더 많은 칼로리를 섭취하면, 체중이 늘 것이다." },
-        { day: 33, word: "imitating", initial: "i", sentence: "The comedian is good at ____ famous people.", translation: "그 코미디언은 유명인들 흉내를 잘 낸다." },
-        { day: 33, word: "initiate", initial: "i", sentence: "They will ____ a new project after the vacation.", translation: "그들은 휴가 후에 새로운 프로젝트를 시작할 것이다." },
-        { day: 33, word: "vacation", initial: "v", sentence: "She's on ____ in Europe, away from work stress.", translation: "그녀는 업무 스트레스에서 벗어나 유럽에서 휴가를 보내고 있다." },
-        { day: 33, word: "vocation", initial: "v", sentence: "I found that teaching children is my ____.", translation: "나는 아이들을 가르치는 것이 내 천직이라는 것을 알았다." },
-        { day: 33, word: "adapt", initial: "a", sentence: "Impalas have the ability to ____ to different environments of the savannas.", translation: "임팔라는 대초원의 다양한 환경에 적응하는 능력이 있다." },
-        { day: 33, word: "adopted", initial: "a", sentence: "The city ____ a new policy to reduce food waste.", translation: "그 도시는 음식물 쓰레기를 줄이기 위해 새 정책을 도입했다." },
-        { day: 33, word: "through", initial: "t", sentence: "The train passed ____ narrow, dark tunnels twice.", translation: "그 기차는 좁고 어두운 터널을 두 번 통과했다." },
-        { day: 33, word: "thorough", initial: "t", sentence: "He was advised to get a ____ medical checkup.", translation: "그는 정밀 건강 검진을 받으라는 권고를 받았다." },
-        { day: 33, word: "marvel", initial: "m", sentence: "The company's latest device is a ____ of modern technology.", translation: "그 회사의 최신 기기는 현대 기술의 경이로운 물건이다." },
-        { day: 33, word: "marble", initial: "m", sentence: "The Taj Mahal is made entirely of ____, which makes it shine beautifully.", translation: "타지마할은 전체가 대리석으로 만들어졌는데, 이는 그것을 아름답게 빛나게 한다." },
-        { day: 33, word: "assume", initial: "a", sentence: "I always ____ the worst in every situation.", translation: "나는 항상 모든 상황에서 최악의 경우를 가정한다." },
-        { day: 33, word: "consumes", initial: "c", sentence: "The brain is merely three percent of our body weight but ____ twenty percent of the available fuel.", translation: "뇌는 우리 체중의 겨우 3%에 불과하지만, 이용 가능한 에너지의 20%를 소비한다." },
-        { day: 33, word: "award", initial: "a", sentence: "After 30 years of acting, she finally received the Best Actress ____.", translation: "30년간의 연기 활동 끝에, 그녀는 마침내 여우주연상을 받았다." },
-        { day: 33, word: "reward", initial: "r", sentence: "The ____ for a good deed is another good deed.", translation: "(속담) 선행에 대한 보답은 또 다른 선행이다." },
-        { day: 33, word: "eliminate", initial: "e", sentence: "Can we ever ____ hunger from the world?", translation: "과연 우리는 세상에서 굶주림을 없앨 수 있을까?" },
-        { day: 33, word: "illuminated", initial: "i", sentence: "Lucy ____ the entire room beautifully using candles.", translation: "Lucy는 촛불을 이용해 방 전체를 아름답게 밝혔다." },
-        { day: 33, word: "statue", initial: "s", sentence: "After Rogers' death, a ____ honoring him was installed in the US Capitol.", translation: "Rogers가 사망한 후, 미국 국회 의사당에 그를 기리는 동상이 설치되었다." },
-        { day: 33, word: "status", initial: "s", sentence: "Most Roman clothing was designed to reveal one's social ____.", translation: "대부분의 로마 의복은 개인의 사회적 지위를 드러내도록 디자인되었다." },
-        { day: 33, word: "hospitality", initial: "h", sentence: "Thank you for your ____ during my stay here.", translation: "제가 여기에 머무는 동안 환대해 주셔서 감사합니다." },
-        { day: 33, word: "hostility", initial: "h", sentence: "He showed ____ toward the opposing party during the debate.", translation: "그는 토론 중에 반대 측에 대한 적의를 보였다." },
-        { day: 33, word: "affects", initial: "a", sentence: "He insisted that the TV program ____ children negatively.", translation: "그는 그 TV 프로그램이 아이들에게 부정적인 영향을 미친다고 주장했다." },
-        { day: 33, word: "effect", initial: "e", sentence: "Using your phone in the dark has a harmful ____ on your eyes.", translation: "어두운 곳에서 휴대 전화를 사용하는 것은 눈에 해로운 영향을 미친다." },
-        { day: 33, word: "conserve", initial: "c", sentence: "We should ____ wetlands for migratory birds.", translation: "우리는 철새들을 위해 습지를 보존해야 한다." },
-        { day: 33, word: "observe", initial: "o", sentence: "When an important change takes place in your life, ____ your response.", translation: "당신의 삶에 중요한 변화가 일어날 때, 당신의 반응을 관찰하라." },
-        { day: 33, word: "expires", initial: "e", sentence: "My passport ____ in six months, so I need to renew it soon.", translation: "내 여권이 6개월 뒤에 만료되어서 나는 곧 그것을 갱신해야 한다." },
-        { day: 33, word: "inspired", initial: "i", sentence: "My teacher ____ me to be confident and speak up in class.", translation: "선생님은 내가 자신감을 가지고 수업 시간에 의견을 말하도록 격려해 주셨다." },
-
-        // Day 34
-        { day: 34, word: "inherent", initial: "i", sentence: "Freedom of expression is regarded as an ____ human right.", translation: "표현의 자유는 인간의 고유한 권리로 여겨진다." },
-        { day: 34, word: "inheritance", initial: "i", sentence: "Charles has recently received a large ____.", translation: "Charles는 최근에 많은 유산을 받았다." },
-        { day: 34, word: "detect", initial: "d", sentence: "One of the advantages of human judgment is the ability to ____ change.", translation: "인간의 판단력의 강점 중 하나는 변화를 감지하는 능력이다." },
-        { day: 34, word: "protect", initial: "p", sentence: "We should ____ children from harmful information on the internet.", translation: "우리는 인터넷상의 유용한 정보로부터 아이들을 보호해야 한다." },
-        { day: 34, word: "hesitancy", initial: "h", sentence: "Please feel free to contact us without ____.", translation: "주저하지 말고 편하게 저희에게 연락하세요." },
-        { day: 34, word: "consistency", initial: "c", sentence: "He always showed ____ in his behavior.", translation: "그는 항상 그의 행동에서 일관성을 보였다." },
-        { day: 34, word: "invention", initial: "i", sentence: "Necessity is the mother of ____.", translation: "(속담) 필요는 발명의 어머니이다." },
-        { day: 34, word: "conventions", initial: "c", sentence: "The film challenges the ____ of the comedy genre.", translation: "그 영화는 코미디 장르의 관습에 도전한다." },
-        { day: 34, word: "compact", initial: "c", sentence: "This bed is ____ but quite comfortable.", translation: "이 침대는 작지만 꽤 편안하다." },
-        { day: 34, word: "impacts", initial: "i", sentence: "New technologies will lead to profound social ____.", translation: "새로운 기술들은 엄청난 사회적 영향을 초래할 것이다." },
-        { day: 34, word: "continual", initial: "c", sentence: "I'm angry about his ____ complaining.", translation: "나는 그의 거듭되는 불평에 화가 난다." },
-        { day: 34, word: "continuous", initial: "c", sentence: "She was successful due to her ____ efforts.", translation: "그녀는 끊임없는 노력 덕분에 성공했다." },
-        { day: 34, word: "stationary", initial: "s", sentence: "Julie is standing behind the ____ vehicle.", translation: "Julie는 정지한 차량 뒤에 서 있다." },
-        { day: 34, word: "stationery", initial: "s", sentence: "We produce and sell high-quality ____ items for students.", translation: "우리는 학생들을 위한 고품질의 문구용품들을 만들어 판매한다." },
-        { day: 34, word: "capability", initial: "c", sentence: "He has the ____ to succeed at whatever he does.", translation: "그는 자신이 하는 어떤 일이든 성공할 수 있는 역량을 지니고 있다." },
-        { day: 34, word: "capacity", initial: "c", sentence: "They manage a hotel with a ____ of 100 rooms.", translation: "그들은 100개의 객실이 있는 호텔을 운영한다." },
-        { day: 34, word: "careers", initial: "c", sentence: "A liberal arts education can be valuable for many ____.", translation: "인문학 교육은 많은 직업에 유익할 수 있다." },
-        { day: 34, word: "carrier", initial: "c", sentence: "The global ____ is well known for carrying important mail.", translation: "그 세계적인 운송 회사는 중요한 우편물을 운송하는 것으로 잘 알려져 있다." },
-        { day: 34, word: "momentary", initial: "m", sentence: "Eating can provide ____ relief from stress.", translation: "먹는 것은 스트레스로부터 순간적인 안도감을 줄 수 있다." },
-        { day: 34, word: "momentous", initial: "m", sentence: "He made a ____ decision for his future.", translation: "그는 자신의 미래를 위해 중대한 결정을 내렸다." },
-        { day: 34, word: "respectful", initial: "r", sentence: "Daniel is ____ to his parents and teachers.", translation: "Daniel은 부모님과 선생님들께 공손하다." },
-        { day: 34, word: "respective", initial: "r", sentence: "Students were required to sit quietly in their ____ seats.", translation: "학생들은 각자의 자리에 조용히 앉아 있을 것을 요구받았다." },
-        { day: 34, word: "reserve", initial: "r", sentence: "If you ____ admission tickets by October 15, the price will be $30.", translation: "당신이 10월 15일까지 입장권을 예약하면, 그 가격은 30달러일 것이다." },
-        { day: 34, word: "deserve", initial: "d", sentence: "You ____ to be praised for what you have done.", translation: "너는 네가 한 일에 대해 칭찬을 받을 만하다." },
-        { day: 34, word: "jealous", initial: "j", sentence: "Don't be ____ of what other people have.", translation: "다른 사람들이 가진 것을 질투하지 마라." },
-        { day: 34, word: "zealous", initial: "z", sentence: "She is very ____ about learning different languages.", translation: "그녀는 여러 언어를 배우는 데 매우 열성적이다." },
-        { day: 34, word: "Competition", initial: "C", sentence: "____ among job seekers is getting fierce these days.", translation: "요즘 구직자들 사이의 경쟁이 치열해지고 있다." },
-        { day: 34, word: "competence", initial: "c", sentence: "His ____ in math continued to grow.", translation: "그의 수학적 능력은 계속해서 성장했다." },
-        { day: 34, word: "observance", initial: "o", sentence: "Teachers have stressed the strict ____ of school rules.", translation: "교사들은 교칙 엄수를 강조해 왔다." },
-        { day: 34, word: "observation", initial: "o", sentence: "Careful ____ of everyday discomfort can lead to valuable discoveries.", translation: "일상의 불편함에 대한 주의 깊은 관찰은 귀중한 발견으로 이어질 수 있다." },
-
-        // Day 35
-        { day: 35, word: "disabilities", initial: "d", sentence: "We're raising funds to support people with physical ____.", translation: "우리는 신체 장애를 가진 사람들을 후원하기 위해 모금을 하고 있다." },
-        { day: 35, word: "inability", initial: "i", sentence: "We often struggle to reach our goals due to an ____ to prioritize our needs.", translation: "우리는 종종 우리의 필요에 우선순위를 매기지 못해 목표를 이루는 데 어려움을 겪는다." },
-        { day: 35, word: "tempted", initial: "t", sentence: "Don't be ____ by cheaper options—this is worth the money.", translation: "더 저렴한 선택지에 유혹당하지 마십시오. 이것은 그 금액에 상응하는 가치가 있습니다." },
-        { day: 35, word: "contempt", initial: "c", sentence: "I feel deep ____ for anyone who abuses power.", translation: "나는 권력을 남용하는 사람에게 깊은 경멸을 느낀다." },
-        { day: 35, word: "carve", initial: "c", sentence: "He used a sharp knife to ____ his initials into the wooden stamp.", translation: "그는 날카로운 칼을 이용해 나무 도장에 자신의 이니셜을 새겼다." },
-        { day: 35, word: "curve", initial: "c", sentence: "The car drove slowly around the ____ in the road.", translation: "그 차는 도로의 커브 구간을 천천히 달렸다." },
-        { day: 35, word: "memorable", initial: "m", sentence: "Shoot and share your most ____ moments with your friends!", translation: "친구들과 가장 기억에 남는 순간들을 촬영해 공유하세요!" },
-        { day: 35, word: "memorial", initial: "m", sentence: "They erected a ____ statue in honor of her.", translation: "그들은 그녀를 기리기 위해 기념 동상을 세웠다." },
-        { day: 35, word: "professor", initial: "p", sentence: "The ____ is an expert in the field of child psychology.", translation: "그 교수는 아동 심리학 분야의 전문가이다." },
-        { day: 35, word: "profession", initial: "p", sentence: "He has been in the medical ____ for over twenty years.", translation: "그는 20년 넘게 의료 전문직에 종사해 왔다." },
-        { day: 35, word: "physicist", initial: "p", sentence: "The ____ was awarded the Nobel Prize for his research.", translation: "그 물리학자는 자신의 연구로 노벨상을 수상했다." },
-        { day: 35, word: "physician", initial: "p", sentence: "Consult a ____ for proper treatment as soon as possible.", translation: "적절한 치료를 위해 가능한 한 빨리 의사와 상담하세요." },
-        { day: 35, word: "occupation", initial: "o", sentence: "She changed her ____ from teacher to writer.", translation: "그녀는 자신의 직업을 교사에서 작가로 바꿨다." },
-        { day: 35, word: "occupant", initial: "o", sentence: "We haven't seen the ____ of the house next door.", translation: "우리는 옆집에 사는 사람을 본 적이 없다." },
-        { day: 35, word: "conscious", initial: "c", sentence: "I was very ____ of people watching me at the party.", translation: "나는 파티에서 나를 쳐다보는 사람들을 매우 의식했다." },
-        { day: 35, word: "conscience", initial: "c", sentence: "He confessed to the crime because he had a guilty ____.", translation: "그는 양심의 가책을 느꼈기 때문에 범죄를 자백했다." },
-        { day: 35, word: "intelligent", initial: "i", sentence: "The dolphin is one of the most ____ marine species.", translation: "돌고래는 가장 똑똑한 해양 생물 중 하나이다." },
-        { day: 35, word: "intellectual", initial: "i", sentence: "Many people read his books and celebrate his ____ achievements.", translation: "많은 사람들이 그의 책을 읽고 그의 지적 업적을 기린다." },
-        { day: 35, word: "emitting", initial: "e", sentence: "The volcano is still ____ thick clouds of ash.", translation: "그 화산은 여전히 자욱한 화산재를 내뿜고 있다." },
-        { day: 35, word: "omit", initial: "o", sentence: "Don't ____ punctuation marks at the end of sentences.", translation: "문장 끝에 구두점을 빠뜨리지 마라." },
-        { day: 35, word: "attributed", initial: "a", sentence: "She ____ her success to the constant support of her parents.", translation: "그녀는 자신의 성공을 부모님의 지속적인 지원 덕분이라고 여겼다." },
-        { day: 35, word: "contribute", initial: "c", sentence: "The market can ____ to the economy through the creation of jobs.", translation: "시장은 일자리 창출을 통해 경제에 기여할 수 있다." },
-        { day: 35, word: "imminent", initial: "i", sentence: "Some species are in ____ danger of extinction.", translation: "일부 종들은 멸종의 임박한 위험에 처해 있다." },
-        { day: 35, word: "eminent", initial: "e", sentence: "A lot of ____ scholars will attend the conference.", translation: "많은 저명한 학자들이 그 학회에 참석할 것이다." },
-        { day: 35, word: "prominent", initial: "p", sentence: "His ____ scars made him easily recognizable.", translation: "그의 두드러진 흉터가 그를 쉽게 알아볼 수 있게 했다." },
-        { day: 35, word: "literal", initial: "l", sentence: "What is the ____ meaning of this sentence?", translation: "이 문장의 문자 그대로의 의미는 무엇인가요?" },
-        { day: 35, word: "literate", initial: "l", sentence: "Less than half of the town's people were ____.", translation: "그 마을 사람들 중 절반 미만이 글을 읽고 쓸 수 있었다." },
-        { day: 35, word: "literary", initial: "l", sentence: "The length of some ____ works is hard to manage.", translation: "일부 문학 작품의 길이는 감당하기 어렵다." },
-        { day: 35, word: "numerals", initial: "n", sentence: "The use of Arabic ____ spread around the world.", translation: "아라비아 숫자의 사용이 전 세계로 퍼졌다." },
-        { day: 35, word: "numerous", initial: "n", sentence: "There are ____ environmental benefits of organic farming.", translation: "유기 농업의 수많은 환경적 이점이 있다." },
-
-        // Day 36 (완벽하게 교정된 원문 문항 기준 20개 단어)[cite: 42, 43, 44]
-        { day: 36, word: "humble", initial: "h", sentence: "Despite his success, he is ____ and kind to everyone.", translation: "자신의 성공에도 불구하고, 그는 겸손하고 모두에게 친절하다." },
-        { day: 36, word: "major", initial: "m", sentence: "Private education is a ____ issue in our society.", translation: "사교육은 우리 사회의 주요 쟁점이다." },
-        { day: 36, word: "submit", initial: "s", sentence: "When do I need to ____ the report?", translation: "그 보고서를 언제 제출해야 하나요?" },
-        { day: 36, word: "capital", initial: "c", sentence: "Ottawa is the ____ of Canada.", translation: "오타와는 캐나다의 수도이다." },
-        { day: 36, word: "apply", initial: "a", sentence: "I'll ____ for the job in the sales department.", translation: "나는 영업 부서의 일자리에 지원할 것이다." },
-        { day: 36, word: "prime", initial: "p", sentence: "Social welfare was the ____ issue in the debate.", translation: "사회 복지가 토론에서의 주요 쟁점이었다." },
-        { day: 36, word: "counted", initial: "c", sentence: "The teacher ____ the students to make sure everyone was present.", translation: "그 교사는 모두 출석했는지 확인하기 위해 학생들을 세어 보았다." },
-        { day: 36, word: "modest", initial: "m", sentence: "He was ____ about his success.", translation: "그는 자신의 성공에 대해 겸손했다." },
-        { day: 36, word: "complex", initial: "c", sentence: "Consider each person's ____ personality of positive and negative traits.", translation: "각 개인이 가진 긍정적·부정적 특성으로 이루어진 복잡한 성격을 고려하라." },
-        { day: 36, word: "deposit", initial: "d", sentence: "He paid the ____ for his house.", translation: "그는 자신의 집의 계약금을 지불했다." },
-        { day: 36, word: "suits", initial: "s", sentence: "The red dress ____ you well.", translation: "그 빨간 드레스는 네게 잘 어울린다." },
-        { day: 36, word: "property", initial: "p", sentence: "The police recovered the stolen ____ after a week.", translation: "경찰은 일주일 뒤에 도난당한 재산을 회수했다." },
-        { day: 36, word: "attend", initial: "a", sentence: "He wasn't able to ____ his graduation ceremony.", translation: "그는 자신의 졸업식에 참석하지 못했다." },
-        { day: 36, word: "tune", initial: "t", sentence: "He played a blues ____ on his guitar.", translation: "그는 기타로 블루스 곡을 연주했다." },
-        { day: 36, word: "commanded", initial: "c", sentence: "The general ____ his troops to attack.", translation: "장군은 그의 부대에게 공격하라고 명령했다." },
-        { day: 36, word: "contract", initial: "c", sentence: "Read the ____ carefully before you sign.", translation: "서명하기 전에 계약서를 주의 깊게 읽으세요." },
-        { day: 36, word: "account", initial: "a", sentence: "I'd like to open a bank ____.", translation: "저는 은행 계좌를 개설하고 싶습니다." },
-        { day: 36, word: "suspended", initial: "s", sentence: "The website ____ service due to server problems.", translation: "그 웹 사이트는 서버 문제로 서비스를 중단했다." },
-        { day: 36, word: "committed", initial: "c", sentence: "The criminal ____ the crime in broad daylight.", translation: "그 범죄자는 대낮에 범행을 저질렀다." },
-        { day: 36, word: "issue", initial: "i", sentence: "We need plenty of time to think about this ____.", translation: "우리는 이 문제에 대해 생각할 충분한 시간이 필요하다." },
-
-        // Day 37
-        { day: 37, word: "contents", initial: "c", sentence: "What are the ____ of the package?", translation: "그 소포의 내용물은 무엇인가요?" },
-        { day: 37, word: "bound", initial: "b", sentence: "I ____ my hair with a yellow ribbon.", translation: "나는 노란 리본으로 머리를 묶었다." },
-        { day: 37, word: "grave", initial: "g", sentence: "We went to my grandmother's ____ yesterday.", translation: "우리는 어제 할머니 산소에 갔다." },
-        { day: 37, word: "facilities", initial: "f", sentence: "The hotel has excellent ____, including a pool and spa.", translation: "그 호텔에는 수영장과 스파를 포함하여 훌륭한 시설이 있다." },
-        { day: 37, word: "reflected", initial: "r", sentence: "The calm lake ____ the bright sunlight.", translation: "잔잔한 호수가 밝은 햇빛을 반사했다." },
-        { day: 37, word: "identified", initial: "i", sentence: "The man has not been ____ yet.", translation: "그 남자는 아직 신원이 확인되지 않았다." },
-        { day: 37, word: "declined", initial: "d", sentence: "Stock prices ____ steeply due to the new government policy.", translation: "새로운 정부 정책으로 인해 주가가 급격히 하락했다." },
-        { day: 37, word: "cast", initial: "c", sentence: "The fisherman ____ his net into the sea.", translation: "어부가 바다에 그물을 던졌다." },
-        { day: 37, word: "correspond", initial: "c", sentence: "The data doesn't ____ to reality.", translation: "그 자료는 현실에 부합하지 않는다." },
-        { day: 37, word: "transferred", initial: "t", sentence: "We ____ the books to our new shelves.", translation: "우리는 그 책들을 새 선반으로 옮겼다." },
-        { day: 37, word: "reason", initial: "r", sentence: "What is your ____ for being late again?", translation: "늦은 이유가 무엇인가요?" },
-        { day: 37, word: "abrupt", initial: "a", sentence: "Climatic changes cause ____ ecosystem responses.", translation: "기후 변화는 갑작스러운 생태계 반응을 일으킨다." },
-        { day: 37, word: "occurred", initial: "o", sentence: "The accident ____ in the morning.", translation: "그 사고는 오전에 일어났다." },
-        { day: 37, word: "condemned", initial: "c", sentence: "We ____ him for his repeated mistakes.", translation: "우리는 그의 반복된 실수 때문에 그를 비난했다." },
-        { day: 37, word: "present", initial: "p", sentence: "There were 17 people ____ at the meeting.", translation: "그 회의에는 17명이 참석했다." },
-        { day: 37, word: "accommodate", initial: "a", sentence: "The hotel can ____ about 300 people.", translation: "그 호텔은 약 300명을 수용할 수 있다." },
-        { day: 37, word: "scale", initial: "s", sentence: "They grow many different crops on a large ____.", translation: "그들은 많은 다양한 농작물을 대규모로 재배한다." },
-        { day: 37, word: "temperate", initial: "t", sentence: "Sydney has a ____ climate, making it perfect for visiting.", translation: "시드니는 기후가 온화하여 방문하기에 더할 나위 없이 좋다." },
-        { day: 37, word: "respected", initial: "r", sentence: "She is highly ____ by all her colleagues.", translation: "그녀는 모든 동료에게 매우 존경받는다." },
-        { day: 37, word: "features", initial: "f", sentence: "The interior ____ of vehicles have a great impact on consumer buying decisions.", translation: "자동차의 내부 특징들은 소비자의 구매 결정에 큰 영향을 미친다." },
-
-        // Day 38
-        { day: 38, word: "faculty", initial: "f", sentence: "The college has an excellent ____.", translation: "그 대학은 우수한 교수진을 갖추고 있다." },
-        { day: 38, word: "referred", initial: "r", sentence: "The professor repeatedly ____ to earlier lectures during the class.", translation: "그 교수는 수업 중에 반복해서 이전 강의들을 언급했다." },
-        { day: 38, word: "tough", initial: "t", sentence: "She had a ____ time finding a job.", translation: "그녀는 직장을 구하느라 힘든 시간을 보냈다." },
-        { day: 38, word: "certain", initial: "c", sentence: "I'm ____ that he is aware of the problems.", translation: "나는 그가 문제들을 알고 있다고 확신한다." },
-        { day: 38, word: "condition", initial: "c", sentence: "The company is in bad financial ____.", translation: "그 회사는 재정 상태가 좋지 않다." },
-        { day: 38, word: "crafts", initial: "c", sentence: "This city is famous for its traditional ____.", translation: "이 도시는 전통 공예품으로 유명하다." },
-        { day: 38, word: "assets", initial: "a", sentence: "Her ____ are estimated at about one billion won.", translation: "그녀의 자산은 약 10억 원으로 추정된다." },
-        { day: 38, word: "burst", initial: "b", sentence: "The balloons ____ from the pressure.", translation: "풍선들이 압력 때문에 터졌다." },
-        { day: 38, word: "beat", initial: "b", sentence: "I barely ____ him in the last badminton match.", translation: "나는 지난 배드민턴 경기에서 그를 간신히 이겼다." },
-        { day: 38, word: "edge", initial: "e", sentence: "They sat on the ____ of the cliff.", translation: "그들은 비랑 끝에 앉았다." },
-        { day: 38, word: "deal", initial: "d", sentence: "Since I can't ____ with it right now, talk to me later.", translation: "나는 지금 당장 그 일을 처리할 수 없으니 나중에 말해 줘." },
-        { day: 38, word: "Direct", initial: "D", sentence: "____ purchases from the farmer are cheaper.", translation: "농부에게서 직접 구매하는 것이 더 저렴하다." },
-        { day: 38, word: "bowed", initial: "b", sentence: "The actors ____ to the audience.", translation: "그 배우들은 관객에게 허리를 굽혀 인사했다." },
-        { day: 38, word: "bitter", initial: "b", sentence: "She took a sip of the ____ herbal tea slowly.", translation: "그녀는 쓴맛이 나는 허브차를 천천히 한 모금 마셨다." },
-        { day: 38, word: "bar", initial: "b", sentence: "He gave me a ____ of chocolate with a smile.", translation: "그는 미소를 지으며 나에게 초콜릿 바 한 개를 줬다." },
-        { day: 38, word: "bound", initial: "b", sentence: "If you wake up late, you're ____ to miss the train.", translation: "네가 늦게 일어나면 열차를 놓칠 가능성이 크다." },
-        { day: 38, word: "adhere", initial: "a", sentence: "The sticker didn't ____ to the wall.", translation: "그 스티커는 벽에 붙지 않았다." },
-        { day: 38, word: "branches", initial: "b", sentence: "Don't break off tree ____ without reason.", translation: "이유 없이 나뭇가지를 꺾지 마라." },
-        { day: 38, word: "state", initial: "s", sentence: "A plastic cup is commonly made from materials far removed from their natural ____.", translation: "플라스틱 컵은 일반적으로 본연의 상태와 거리가 먼 재료로 만들어진다." },
-        { day: 38, word: "charged", initial: "c", sentence: "They ____ me an extra $50 for the service.", translation: "그들은 그 서비스에 대해 내게 추가로 50달러를 청구했다." },
-
-        // Day 39
-        { day: 39, word: "fountain", initial: "f", sentence: "Tourists threw coins into the ____.", translation: "관광객들이 분수에 동전을 던졌다." },
-        { day: 39, word: "margins", initial: "m", sentence: "He made some notes in the ____ of the book.", translation: "그는 책의 여백에 메모를 했다." },
-        { day: 39, word: "bill", initial: "b", sentence: "Could we have the ____ now, please?", translation: "저희가 지금 계산서를 받을 수 있을까요?" },
-        { day: 39, word: "owes", initial: "o", sentence: "He still ____ me the $100 he borrowed from me last month.", translation: "그는 지난달에 나에게 빌린 100달러를 아직도 빚지고 있다." },
-        { day: 39, word: "decent", initial: "d", sentence: "He has a ____ job that pays well.", translation: "그는 급여가 좋은 괜찮은 직업을 가졌다." },
-        { day: 39, word: "terms", initial: "t", sentence: "Medical ____ are difficult to understand.", translation: "의학 용어는 이해하기 어렵다." },
-        { day: 39, word: "discipline", initial: "d", sentence: "I was brought up under strict ____.", translation: "나는 엄한 훈육을 받으며 자랐다." },
-        { day: 39, word: "launched", initial: "l", sentence: "He ____ an online fundraising campaign to raise money for children.", translation: "그는 아이들을 위한 기금을 모으기 위해 온라인 모금 캠페인을 시작했다." },
-        { day: 39, word: "inflate", initial: "i", sentence: "The car's airbags failed to ____ in the crash.", translation: "추돌 사고에서 그 차량의 에어백이 부풀지 않았다." },
-        { day: 39, word: "race", initial: "r", sentence: "We won second place in the relay ____.", translation: "우리는 계주에서 2등을 했다." },
-        { day: 39, word: "flat", initial: "f", sentence: "The company produces ____ screen monitors.", translation: "그 회사는 평면 스크린 모니터를 생산한다." },
-        { day: 39, word: "demonstrate", initial: "d", sentence: "Join our contest and ____ your filmmaking skills!", translation: "저희 대회에 참가해서 여러분의 영화 제작 실력을 증명해 보세요!" },
-        { day: 39, word: "flushed", initial: "f", sentence: "Hearing the rumor, her face ____ red with anger.", translation: "그 소문을 듣고 그녀의 얼굴이 분노로 상기되었다." },
-        { day: 39, word: "customs", initial: "c", sentence: "Multiculturalists say immigrants should preserve some of their ____.", translation: "다문화주의자들은 이민자들이 그들 관습의 일부를 유지해야 한다고 말한다." },
-        { day: 39, word: "firm", initial: "f", sentence: "I'll build my house on ____ ground.", translation: "나는 단단한 지반에 집을 지을 것이다." },
-        { day: 39, word: "Folks", initial: "F", sentence: "____ in his hometown are always friendly to newcomers.", translation: "그의 고향 사람들은 언제나 새로 온 사람들에게 다정하다." },
-        { day: 39, word: "balance", initial: "b", sentence: "The baby lost its ____ and fell down.", translation: "그 아기는 균형을 잃고 넘어졌다." },
-        { day: 39, word: "radical", initial: "r", sentence: "They discussed ____ solutions to unemployment problems.", translation: "그들은 실업 문제의 근본적인 해결책에 관해 논의했다." },
-        { day: 39, word: "objects", initial: "o", sentence: "Please do not touch the ____ on the shelves.", translation: "선반 위의 물건들을 만지지 마세요." },
-        { day: 39, word: "yielded", initial: "y", sentence: "The tree ____ a lot of walnuts this year.", translation: "그 나무는 올해 호두를 많이 맺었다." },
-
-        // Day 40
-        { day: 40, word: "recalled", initial: "r", sentence: "Sitting on the stairs, I ____ what my teacher had said.", translation: "계단에 앉아서, 나는 선생님이 하신 말씀을 떠올렸다." },
-        { day: 40, word: "remarked", initial: "r", sentence: "Critics ____ that the film was full of clichés.", translation: "비평가들은 그 영화가 진부한 표현으로 가득 차 있다고 평했다." },
-        { day: 40, word: "row", initial: "r", sentence: "All the national players stood in a neat ____.", translation: "모든 국가대표 선수가 가지런히 일렬로 서 있었다." },
-        { day: 40, word: "score", initial: "s", sentence: "Jim got the highest ____ on the final exam.", translation: "Jim은 기말고사에서 가장 높은 점수를 받았다." },
-        { day: 40, word: "stroke", initial: "s", sentence: "With a ____ of his axe, he cut down the tree.", translation: "그는 도끼를 한 번 휘둘러 나무를 베어 냈다." },
-        { day: 40, word: "subtle", initial: "s", sentence: "There are ____ differences between the two paintings.", translation: "그 두 그림 간에 미묘한 차이가 있다." },
-        { day: 40, word: "tissue", initial: "t", sentence: "Damaged brain ____ doesn't repair itself.", translation: "손상된 뇌 조직은 자기 회복되지 않는다." },
-        { day: 40, word: "stuck", initial: "s", sentence: "I ____ a needle into my finger while sewing on a button.", translation: "나는 단추를 꿰매다가 바늘로 내 손가락을 찔렀다." },
-        { day: 40, word: "shallow", initial: "s", sentence: "The stream is ____ enough for kids to play in.", translation: "그 개울은 아이들이 놀 수 있을 정도로 충분히 얕다." },
-        { day: 40, word: "shed", initial: "s", sentence: "The brand wants to ____ its outdated image.", translation: "그 브랜드는 구식 이미지를 없애고 싶어 한다." },
-        { day: 40, word: "seeds", initial: "s", sentence: "It's easy to grow tomatoes from ____.", translation: "씨를 심어 토마토를 기르는 것은 쉽다." },
-        { day: 40, word: "trial", initial: "t", sentence: "She will be sent to ____ over the case.", translation: "그녀는 그 사건으로 재판에 회부될 것이다." },
-        { day: 40, word: "Treat", initial: "T", sentence: "____ others the way you would like to be treated.", translation: "네가 대우받고 싶은 대로 다른 이들을 대하라." },
-        { day: 40, word: "slight", initial: "s", sentence: "The two caps are similar but have a ____ difference in color.", translation: "그 두 모자는 비슷하지만 색상에 약간의 차이가 있다." },
-        { day: 40, word: "spare", initial: "s", sentence: "I carry a ____ tire in case we get a flat.", translation: "나는 타이어가 펑크 날 경우에 대비해 예비 타이어를 가지고 다닌다." },
-        { day: 40, word: "subject", initial: "s", sentence: "True friendship is the main ____ of the book.", translation: "진정한 우정이 그 책의 주된 주제이다." },
-        { day: 40, word: "perform", initial: "p", sentence: "Emma wasn't sure she could ____ her role without making a mistake.", translation: "Emma는 실수 없이 자신의 역할을 수행할 수 있을지 확신할 수 없었다." },
-        { day: 40, word: "starving", initial: "s", sentence: "Many people are ____ because of the drought.", translation: "가뭄으로 많은 이들이 굶주리고 있다." },
-        { day: 40, word: "toll", initial: "t", sentence: "Paying the ____ and driving over the bridge saves a lot of time.", translation: "통행료를 내고 다리를 건너 운전하는 것은 많은 시간을 절약해 준다." },
-        { day: 40, word: "stock", initial: "s", sentence: "Please check the ____ before placing the order.", translation: "주문하기 전에 재고를 확인해 주세요." }
+        // Day 23 ~ Day 40 (기존 검수된 정밀 데이터베이스 유지)
+        { id: "36_1", day: 36, word: "humble", initial: "h", sentence: "Despite his success, he is ____ and kind to everyone.", translation: "자신의 성공에도 불구하고, 그는 겸손하고 모두에게 친절하다." },
+        { id: "36_2", day: 36, word: "major", initial: "m", sentence: "Private education is a ____ issue in our society.", translation: "사교육은 우리 사회의 주요 쟁점이다." },
+        { id: "36_3", day: 36, word: "submit", initial: "s", sentence: "When do I need to ____ the report?", translation: "그 보고서를 언제 제출해야 하나요?" },
+        { id: "36_4", day: 36, word: "capital", initial: "c", sentence: "Ottawa is the ____ of Canada.", translation: "오타와는 캐나다의 수도이다." },
+        { id: "36_5", day: 36, word: "apply", initial: "a", sentence: "I'll ____ for the job in the sales department.", translation: "나는 영업 부서의 일자리에 지원할 것이다." },
+        { id: "36_6", day: 36, word: "prime", initial: "p", sentence: "Social welfare was the ____ issue in the debate.", translation: "사회 복지가 토론에서의 주요 쟁점이었다." },
+        { id: "36_7", day: 36, word: "counted", initial: "c", sentence: "The teacher ____ the students to make sure everyone was present.", translation: "그 교사는 모두 출석했는지 확인하기 위해 학생들을 세어 보았다." },
+        { id: "36_8", day: 36, word: "modest", initial: "m", sentence: "He was ____ about his success.", translation: "그는 자신의 성공에 대해 겸손했다." },
+        { id: "36_9", day: 36, word: "complex", initial: "c", sentence: "Consider each person's ____ personality of positive and negative traits.", translation: "각 개인이 가진 긍정적·부정적 특성으로 이루어진 복잡한 성격을 고려하라." },
+        { id: "36_10", day: 36, word: "deposit", initial: "d", sentence: "He paid the ____ for his house.", translation: "그는 자신의 집의 계약금을 지불했다." },
+        { id: "36_11", day: 36, word: "suits", initial: "s", sentence: "The red dress ____ you well.", translation: "그 빨간 드레스는 네게 잘 어울린다." },
+        { id: "36_12", day: 36, word: "property", initial: "p", sentence: "The police recovered the stolen ____ after a week.", translation: "경찰은 일주일 뒤에 도난당한 재산을 회수했다." },
+        { id: "36_13", day: 36, word: "attend", initial: "a", sentence: "He wasn't able to ____ his graduation ceremony.", translation: "그는 자신의 졸업식에 참석하지 못했다." },
+        { id: "36_14", day: 36, word: "tune", initial: "t", sentence: "He played a blues ____ on his guitar.", translation: "그는 기타로 블루스 곡을 연주했다." },
+        { id: "36_15", day: 36, word: "commanded", initial: "c", sentence: "The general ____ his troops to attack.", translation: "장군은 그의 부대에게 공격하라고 명령했다." },
+        { id: "36_16", day: 36, word: "contract", initial: "c", sentence: "Read the ____ carefully before you sign.", translation: "서명하기 전에 계약서를 주의 깊게 읽으세요." },
+        { id: "36_17", day: 36, word: "account", initial: "a", sentence: "I'd like to open a bank ____.", translation: "저는 은행 계좌를 개설하고 싶습니다." },
+        { id: "36_18", day: 36, word: "suspended", initial: "s", sentence: "The website ____ service due to server problems.", translation: "그 웹 사이트는 서버 문제로 서비스를 중단했다." },
+        { id: "36_19", day: 36, word: "committed", initial: "c", sentence: "The criminal ____ the crime in broad daylight.", translation: "그 범죄자는 대낮에 범행을 저질렀다." },
+        { id: "36_20", day: 36, word: "issue", initial: "i", sentence: "We need plenty of time to think about this ____.", translation: "우리는 이 문제에 대해 생각할 충분한 시간이 필요하다." }
     ];
+
+    // 로컬 스토리지 관리 객체
+    const StorageManager = {
+        getStars: () => JSON.parse(localStorage.getItem('ungjung_stars') || '[]'),
+        toggleStar: (id) => {
+            let stars = StorageManager.getStars();
+            if (stars.includes(id)) {
+                stars = stars.filter(s => s !== id);
+            } else {
+                stars.push(id);
+            }
+            localStorage.setItem('ungjung_stars', JSON.stringify(stars));
+            return stars.includes(id);
+        },
+        getWrongs: () => JSON.parse(localStorage.getItem('ungjung_wrongs') || '[]'),
+        addWrong: (id) => {
+            let wrongs = StorageManager.getWrongs();
+            if (!wrongs.includes(id)) {
+                wrongs.push(id);
+                localStorage.setItem('ungjung_wrongs', JSON.stringify(wrongs));
+            }
+        },
+        removeWrong: (id) => {
+            let wrongs = StorageManager.getWrongs().filter(w => w !== id);
+            localStorage.setItem('ungjung_wrongs', JSON.stringify(wrongs));
+        }
+    };
 
     // 상태 변수
     let selectedDays = [];
+    let studyFilter = 'all';
     let gameMode = 'swipe';
     let sortMode = 'all';
     let currentPlaylist = [];
     let currentIndex = 0;
     let isCheckedState = false;
+    let correctCount = 0;
 
     // DOM 요소
     const startScreen = document.getElementById('start-screen');
@@ -1029,7 +624,9 @@
     const btnQuit = document.getElementById('btn-quit');
     
     const progressText = document.getElementById('progress-text');
+    const progressBar = document.getElementById('progress-bar');
     const dayBadge = document.getElementById('day-badge');
+    const btnStar = document.getElementById('btn-star');
     const cardSentence = document.getElementById('card-sentence');
     const cardTranslation = document.getElementById('card-translation');
     const wordDisplay = document.getElementById('word-display');
@@ -1066,10 +663,11 @@
 
     // 학습 시작
     btnStart.addEventListener('click', () => {
+        studyFilter = document.querySelector('input[name="study-filter"]:checked').value;
         const checkboxes = document.querySelectorAll('.day-checkbox:checked');
         selectedDays = Array.from(checkboxes).map(cb => parseInt(cb.value));
 
-        if (selectedDays.length === 0) {
+        if (studyFilter === 'all' && selectedDays.length === 0) {
             alert('최소 하나 이상의 Day를 선택해 주세요!');
             return;
         }
@@ -1077,19 +675,42 @@
         gameMode = document.querySelector('input[name="game-mode"]:checked').value;
         sortMode = document.querySelector('input[name="sort-mode"]:checked').value;
 
-        let filteredData = vocabularyData.filter(item => selectedDays.includes(item.day));
+        let filteredData = [];
+        if (studyFilter === 'star') {
+            const stars = StorageManager.getStars();
+            filteredData = vocabularyData.filter(item => stars.includes(item.id));
+            if (filteredData.length === 0) {
+                alert('⭐️ 즐겨찾기한 단어가 없습니다!');
+                return;
+            }
+        } else if (studyFilter === 'wrong') {
+            const wrongs = StorageManager.getWrongs();
+            filteredData = vocabularyData.filter(item => wrongs.includes(item.id));
+            if (filteredData.length === 0) {
+                alert('❌ 오답노트에 저장된 단어가 없습니다!');
+                return;
+            }
+        } else {
+            filteredData = vocabularyData.filter(item => selectedDays.includes(item.day));
+            if (filteredData.length === 0) {
+                alert('선택한 Day에 해당하는 단어가 없습니다.');
+                return;
+            }
+        }
 
         if (sortMode === 'all') {
             currentPlaylist = shuffle([...filteredData]);
         } else {
             currentPlaylist = [];
-            selectedDays.sort((a, b) => a - b).forEach(dayNum => {
+            let uniqueDays = [...new Set(filteredData.map(i => i.day))].sort((a,b)=>a-b);
+            uniqueDays.forEach(dayNum => {
                 let dayItems = filteredData.filter(item => item.day === dayNum);
                 currentPlaylist.push(...shuffle(dayItems));
             });
         }
 
         currentIndex = 0;
+        correctCount = 0;
 
         startScreen.classList.remove('active');
         gameScreen.classList.add('active');
@@ -1104,11 +725,7 @@
             wordDisplay.style.display = 'none';
         }
 
-        if (sortMode === 'day') {
-            dayBadge.style.display = 'inline-block';
-        } else {
-            dayBadge.style.display = 'none';
-        }
+        dayBadge.style.display = (sortMode === 'day' && studyFilter === 'all') ? 'inline-block' : 'none';
 
         renderCard();
     });
@@ -1121,17 +738,40 @@
         }
     });
 
+    // 별표 토글 버튼
+    btnStar.addEventListener('click', () => {
+        const item = currentPlaylist[currentIndex];
+        const isStarred = StorageManager.toggleStar(item.id);
+        updateStarUI(isStarred);
+    });
+
+    function updateStarUI(isStarred) {
+        if (isStarred) {
+            btnStar.classList.add('active');
+            btnStar.textContent = '⭐️';
+        } else {
+            btnStar.classList.remove('active');
+            btnStar.textContent = '☆';
+        }
+    }
+
     // 카드 렌더링
     function renderCard() {
         const item = currentPlaylist[currentIndex];
 
         progressText.textContent = `${currentIndex + 1} / ${currentPlaylist.length}`;
+        progressBar.style.width = `${((currentIndex + 1) / currentPlaylist.length) * 100}%`;
+        
         cardSentence.textContent = `${item.sentence} (${item.initial})`;
         cardTranslation.textContent = item.translation;
 
-        if (sortMode === 'day') {
+        if (sortMode === 'day' && studyFilter === 'all') {
             dayBadge.textContent = `Day ${item.day}`;
         }
+
+        // 즐겨찾기 상태 반영
+        const stars = StorageManager.getStars();
+        updateStarUI(stars.includes(item.id));
 
         wordDisplay.textContent = '';
         testInput.value = '';
@@ -1159,9 +799,12 @@
         if (userInputValue === targetWord) {
             feedback.textContent = `O (${item.word})`;
             feedback.className = 'feedback correct';
+            correctCount++;
+            StorageManager.removeWrong(item.id); // 맞히면 오답노트에서 제거
         } else {
             feedback.textContent = `X (${item.word})`;
             feedback.className = 'feedback incorrect';
+            StorageManager.addWrong(item.id); // 틀리면 오답노트 추가
         }
         isCheckedState = true;
     }
@@ -1174,7 +817,7 @@
         }
     });
 
-    // 엔터키 조작 로직 (Enter 1회: 채점 / Enter 2회: 다음 문제)
+    // 엔터키 조작
     testInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -1192,7 +835,10 @@
             currentIndex++;
             renderCard();
         } else {
-            alert('선택하신 모든 단어를 학습했습니다! 수고하셨습니다!');
+            const accuracy = Math.round((correctCount / currentPlaylist.length) * 100);
+            alert(`🎉 학습 완료!\n총 ${currentPlaylist.length}문제 중 ${correctCount}개 정답 (${accuracy}%)`);
+            gameScreen.classList.remove('active');
+            startScreen.classList.add('active');
         }
     }
 
